@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diwaan Gelin - Veyzo Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0B132B;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: transparent;
+            width: 100%;
+            max-width: 440px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            margin: 0 15px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            padding-top: 15px;
+        }
+
+        .tab-btn {
+            font-size: 20px;
+            font-weight: bold;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            transition: all 0.3s ease;
+            padding-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            color: #D4AF37;
+            border-bottom: 2px solid #D4AF37;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .input-with-icon {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: #334155;
+            color: #fff;
+            padding: 12px 15px 12px 45px; 
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #D4AF37;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        .file-inputs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .file-label {
+            flex: 1;
+            background-color: #334155;
+            color: white;
+            padding: 12px 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            transition: background 0.2s;
+            border: 1px solid #64748b;
+            cursor: pointer;
+        }
+
+        .file-label:hover {
+            background-color: #475569;
+            border-color: #D4AF37;
+        }
+
+        .file-label input {
+            display: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: #D4AF37;
+            color: #111827;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #c59b27;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .span1 {
+            color: #D4AF37;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div>
+            <h1><i class="fa-solid fa-store"></i> Welcome to ve<span class="span1">y</span>zo store</h1>
+        </div>
+        <div class="tabs">
+            <button type="button" onclick="switchTab('iibsade')" id="btn-iibsade" class="tab-btn">
+                <i class="fa-solid fa-user"></i> Iibsade
+            </button>
+            <button type="button" onclick="switchTab('ibiye')" id="btn-ibiye" class="tab-btn active">
+                <i class="fa-solid fa-shop"></i> Ibiye
+            </button>
+        </div>
+
+        <!-- Foomka 1: Ibiye -->
+        <form id="form-ibiye" onsubmit="handleIbiyeSubmit(event)">
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-store input-icon"></i>
+                    <input type="text" id="ibiye-store-name" placeholder="magaca dukaanka" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input type="email" id="ibiye-email" placeholder="email dukaanka" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-location-dot input-icon"></i>
+                    <input type="text" id="ibiye-location" placeholder="goobta" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-phone input-icon"></i>
+                    <input type="text" id="ibiye-phone" placeholder="talefan numberka" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="ibiye-password" placeholder="furo sireedka" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="file-inputs">
+                <label class="file-label">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> <span id="label-shati">Shati Dukaan</span>
+                    <input type="file" id="ibiye-shati" accept=".jpg, .jpeg, .png, .pdf" onchange="updateFileName('ibiye-shati', 'label-shati')" required>
+                </label>
+                <label class="file-label">
+                    <i class="fa-solid fa-id-card"></i> <span id="label-aqoonsi">Aqoonsi</span>
+                    <input type="file" id="ibiye-aqoonsi" accept=".jpg, .jpeg, .png, .pdf" onchange="updateFileName('ibiye-aqoonsi', 'label-aqoonsi')" required>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" id="btn-ibiye-submit" class="submit-btn"><i class="fa-solid fa-paper-plane"></i> Gudbi</button>
+            </div>
+        </form>
+
+        <!-- Foomka 2: Iibsade -->
+        <form id="form-iibsade" class="hidden" onsubmit="handleIibsadeSubmit(event)">
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-user input-icon"></i>
+                    <input type="text" id="iibsade-name" placeholder="magaca labaad" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input type="email" id="iibsade-email" placeholder="email" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="iibsade-password" placeholder="furo sireed" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" id="btn-iibsade-submit" class="submit-btn"><i class="fa-solid fa-paper-plane"></i> Gudbi</button>
+            </div>
+        </form>
+
+    </div>
+
+    <!-- 1. Supabase SDK Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 2. Configuration File-kaaga Gaarka Ah -->
+    <script src="supabase-config.js"></script>
+
+    <!-- 3. Dynamic Logic Scripts -->
+    <script>
+        function getSupabase() {
+            if (window.supabaseClient && typeof window.supabaseClient.auth === 'object') {
+                return window.supabaseClient;
+            }
+            if (window.supabase && typeof window.supabase.auth === 'object') {
+                return window.supabase;
+            }
+            return null;
+        }
+
+        function switchTab(tab) {
+            const formIbiye = document.getElementById('form-ibiye');
+            const formIibsade = document.getElementById('form-iibsade');
+            const btnIbiye = document.getElementById('btn-ibiye');
+            const btnIibsade = document.getElementById('btn-iibsade');
+
+            if (tab === 'ibiye') {
+                if(formIbiye) formIbiye.classList.remove('hidden');
+                if(formIibsade) formIibsade.classList.add('hidden');
+                if(btnIbiye) btnIbiye.classList.add('active');
+                if(btnIibsade) btnIibsade.classList.remove('active');
+            } else {
+                if(formIibsade) formIibsade.classList.remove('hidden');
+                if(formIbiye) formIbiye.classList.add('hidden');
+                if(btnIibsade) btnIibsade.classList.add('active');
+                if(btnIbiye) btnIbiye.classList.remove('active');
+            }
+        }
+
+        function updateFileName(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                // Hubi in cabbirku uusan ka badnayn 5MB
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('❌ Faylka aad dooratay waa uu ka weyn yahay 5MB. Fadlan dooro fayl yar.');
+                    input.value = '';
+                    label.innerText = labelId === 'label-shati' ? 'Shati Dukaan' : 'Aqoonsi';
+                    return;
+                }
+                label.innerText = file.name.substring(0, 10) + '...';
+            }
+        }
+
+        // Handle Register Iibsade (Buyer)
+        async function handleIibsadeSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('btn-iibsade-submit');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Fadlan sug...';
+
+            const fullName = document.getElementById('iibsade-name').value;
+            const email = document.getElementById('iibsade-email').value;
+            const password = document.getElementById('iibsade-password').value;
+
+            try {
+                const db = getSupabase();
+
+                if (db && db.auth) {
+                    const { data, error } = await db.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+                    if (error) throw error;
+                }
+
+                localStorage.setItem('veyzo_logged_in', 'true');
+                localStorage.setItem('veyzo_user_role', 'buyer');
+                localStorage.setItem('veyzo_user_profile', JSON.stringify({
+                    name: fullName,
+                    email: email
+                }));
+
+                alert('✅ Waad ku guuleysatay diwaangelinta Iibsadaa!');
+                
+                setTimeout(() => {
+                    window.location.href = "../index.html"; 
+                }, 1000);
+
+            } catch (err) {
+                alert('❌ Cillad ayaa dhacday: ' + (err.message || 'Fadlan dib u eeg xogtaada.'));
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gudbi';
+            }
+        }
+
+        // Handle Register Ibiye (Seller / Store) with File Verification & Supabase Upload
+        async function handleIbiyeSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('btn-ibiye-submit');
+            
+            const shatiFile = document.getElementById('ibiye-shati').files[0];
+            const aqoonsiFile = document.getElementById('ibiye-aqoonsi').files[0];
+
+            // Hubinta in feylasha la soo lifaaqay oo ay yihiin noocyada saxda ah (Sawir ama PDF)
+            if (!shatiFile || !aqoonsiFile) {
+                alert('❌ Fadlan soo geli Shati-ga Dukaanka iyo Aqoonsiga labadaba.');
+                return;
+            }
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+            if (!allowedTypes.includes(shatiFile.type) || !allowedTypes.includes(aqoonsiFile.type)) {
+                alert('❌ Fadlan hubi in shatiga iyo aqoonsiguba ay yihiin sawir (JPG, PNG) ama PDF sax ah.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Fadlan sug, feylasha ayaa la xaqiijinayaa oo la gelinayaa...';
+
+            const storeName = document.getElementById('ibiye-store-name').value;
+            const email = document.getElementById('ibiye-email').value;
+            const location = document.getElementById('ibiye-location').value;
+            const phone = document.getElementById('ibiye-phone').value;
+            const password = document.getElementById('ibiye-password').value;
+
+            try {
+                const db = getSupabase();
+
+                // 1. Diiwaangeli isticmaalaha Supabase Auth
+                if (db && db.auth) {
+                    const { data: authData, error: authError } = await db.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+                    if (authError) throw authError;
+                }
+
+                let shatiUrl = '';
+                let aqoonsiUrl = '';
+
+                // 2. Upload feylasha oo ku keydi Supabase Storage (Bucket: store-documents)
+                if (db && db.storage) {
+                    const fileExt1 = shatiFile.name.split('.').pop();
+                    const shatiFileName = `shati_${Date.now()}.${fileExt1}`;
+                    const { data: uploadShati, error: errShati } = await db.storage
+                        .from('store-documents')
+                        .upload(shatiFileName, shatiFile);
+
+                    if (errShati) throw new Error('Cillad ku jirta gelinta Shati-ga: ' + errShati.message);
+
+                    const { data: publicURL1 } = db.storage.from('store-documents').getPublicUrl(shatiFileName);
+                    shatiUrl = publicURL1.publicUrl;
+
+                    const fileExt2 = aqoonsiFile.name.split('.').pop();
+                    const aqoonsiFileName = `aqoonsi_${Date.now()}.${fileExt2}`;
+                    const { data: uploadAqoonsi, error: errAqoonsi } = await db.storage
+                        .from('store-documents')
+                        .upload(aqoonsiFileName, aqoonsiFile);
+
+                    if (errAqoonsi) throw new Error('Cillad ku jirta gelinta Aqoonsiga: ' + errAqoonsi.message);
+
+                    const { data: publicURL2 } = db.storage.from('store-documents').getPublicUrl(aqoonsiFileName);
+                    aqoonsiUrl = publicURL2.publicUrl;
+                }
+
+                // 3. Ku keydi xogta iyo xiriirka feylasha miiska `stores` ee Supabase database
+                if (db && typeof db.from === 'function') {
+                    const { error: dbError } = await db.from('stores').insert([
+                        {
+                            store_name: storeName,
+                            email: email,
+                            location: location,
+                            phone: phone,
+                            shati_url: shatiUrl,
+                            aqoonsi_url: aqoonsiUrl
+                        }
+                    ]);
+                    if (dbError) throw dbError;
+                }
+
+                // 4. Keydi session-ka localStorage
+                localStorage.setItem('veyzo_logged_in', 'true');
+                localStorage.setItem('veyzo_user_role', 'seller');
+                localStorage.setItem('veyzo_user_profile', JSON.stringify({
+                    storeName: storeName,
+                    email: email,
+                    location: location,
+                    phone: phone
+                }));
+
+                alert('✅ Shati-ga iyo Aqoonsiga si guul leh ayaa loo xaqiijiyay waana la keydiyay!');
+                
+                // U gudbi bogga maamulka iibiyaha (Seller/Admin Dashboard)
+                setTimeout(() => {
+                    window.location.href = "../admin/admin.html"; 
+                }, 1000);
+
+            } catch (err) {
+                alert('❌ Cillad ayaa dhacday: ' + (err.message || 'Fadlan dib u eeg xogtaada.'));
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gudbi';
+            }
+        }
+    </script>
+</body>
+</html>

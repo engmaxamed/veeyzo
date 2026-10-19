@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="so" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Support - Live Chat & Voice Calling System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0B132B', 800: '#1C2541', 700: '#3A506B', 600: '#4A6572' },
+            gold: { 300: '#FFE082', 400: '#F4C430', 500: '#D4AF37', 600: '#AA820A' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.3);
+      border-radius: 10px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: rgba(58, 80, 107, 0.5);
+    }
+    .animate-pulse-fast {
+      animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .wave-bar {
+      animation: wave 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes wave {
+      0% { height: 20%; }
+      100% { height: 100%; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-[#0A0F1D] text-gray-800 dark:text-gray-200 font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+  <!-- Header Section -->
+  <header class="bg-white dark:bg-navy-900 border-b border-gray-200 dark:border-navy-800 p-3 md:p-4 flex justify-between items-center shadow-sm shrink-0 z-10">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Back Button -->
+      <button id="mobileBackBtn" onclick="showCustomerListOnMobile()" class="hidden text-gold-500 hover:text-gold-600 transition p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-navy-800">
+        <i class="fa-solid fa-arrow-left text-xl"></i>
+      </button>
+      <div class="bg-gold-500/10 p-2.5 rounded-xl border border-gold-500/30 hidden sm:block">
+        <i class="fa-solid fa-headset text-gold-500 text-xl"></i>
+      </div>
+      <div>
+        <h1 class="font-black text-base md:text-lg text-gray-900 dark:text-white flex items-center gap-2">
+          Customer Support
+          <span class="bg-gold-500/20 text-gold-600 dark:text-gold-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-gold-500/30">Live Support</span>
+        </h1>
+        <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Si toos ah ugu jawaab fariimaha iyo wicitaanka macaamiisha</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <!-- Active Status Indicator -->
+      <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        Customer Support Online
+      </div>
+
+      <!-- Quick Action: Notifications -->
+      <button onclick="showNotificationModal()" class="relative bg-gray-100 dark:bg-navy-800 p-2.5 rounded-xl border border-gray-200 dark:border-navy-700 text-gray-600 dark:text-gray-300 hover:border-gold-500 transition">
+        <i class="fa-regular fa-bell text-sm"></i>
+        <span id="globalUnreadBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full items-center justify-center border-2 border-white dark:border-navy-900">0</span>
+      </button>
+
+      <!-- Theme Toggle -->
+      <button onclick="toggleTheme()" class="bg-gray-100 dark:bg-navy-800 p-2.5 rounded-xl border border-gray-200 dark:border-navy-700 text-gold-500 hover:border-gold-500 transition" title="Bedel Theme-ka">
+        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+      </button>
+
+      <!-- Logout Button -->
+      <button onclick="handleLogout()" class="bg-red-500/10 hover:bg-red-500/20 p-2.5 rounded-xl border border-red-500/30 text-red-500 transition flex items-center gap-1.5" title="Ka bax (Logout)">
+        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+        <span class="hidden md:inline text-xs font-semibold">Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Chat & Support Layout -->
+  <div class="flex-1 flex overflow-hidden max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4">
+    
+    <!-- Left Sidebar: Conversations List -->
+    <div id="customerListSidebar" class="w-full md:w-80 bg-white dark:bg-navy-800 rounded-2xl border border-gray-200 dark:border-navy-700/60 flex flex-col overflow-hidden shadow-md shrink-0">
+      
+      <!-- Search Input & Simulation Action -->
+      <div class="p-3.5 border-b border-gray-200 dark:border-navy-700 bg-gray-50/50 dark:bg-navy-900/40 space-y-2">
+        <div class="relative">
+          <input type="text" id="searchInput" oninput="filterCustomers()" placeholder="Raadi macmiil ama fariin..." class="w-full bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 rounded-xl py-2 pl-9 pr-8 text-xs text-gray-900 dark:text-white outline-none focus:border-gold-500 transition">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-2 text-gray-400 hover:text-gold-500 text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <!-- Simulate Incoming Customer Button -->
+        <button onclick="simulateIncomingCustomer()" class="w-full bg-gold-500/10 hover:bg-gold-500/20 text-gold-500 border border-gold-500/30 text-[11px] font-bold py-1.5 rounded-xl transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-user-plus text-xs"></i>
+          Simulate Incoming Macmiil Cusub
+        </button>
+      </div>
+
+      <!-- Customer List Container -->
+      <div id="customersListContainer" class="flex-1 overflow-y-auto divide-y divide-gray-100 dark:divide-navy-700/40">
+        <!-- Dynamic Customers Loaded Here -->
+      </div>
+
+      <!-- Quick Stats Footer -->
+      <div class="p-3 bg-gray-50/80 dark:bg-navy-900/60 border-t border-gray-200 dark:border-navy-700 flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+        <span>Active Macaamiil: <strong id="totalActiveCount" class="text-gold-500">0</strong></span>
+        <span>Lama akhrin: <strong id="totalUnreadCount" class="text-red-400">0</strong></span>
+      </div>
+    </div>
+
+    <!-- Right Side: Active Customer Support Chat Area -->
+    <div id="chatArea" class="hidden md:flex flex-1 bg-white dark:bg-navy-800 rounded-2xl border border-gray-200 dark:border-navy-700/60 flex-col overflow-hidden shadow-md relative">
+      
+      <!-- Empty Chat Placeholder -->
+      <div id="noActiveChatPlaceholder" class="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400">
+        <div class="w-16 h-16 bg-navy-700/30 text-gold-500 rounded-full flex items-center justify-center mb-3 border border-navy-600">
+          <i class="fa-solid fa-comments text-2xl"></i>
+        </div>
+        <h3 class="text-base font-bold text-gray-800 dark:text-gray-200">Ma jiro macmiil fariin ama wicitaan soo diray</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm">Marka uu macmiil cusub kuso xiriiro, halkan ayay fariimihiisa ama wicitaankiisu si toos ah kugu soo muuqan doonaan.</p>
+      </div>
+
+      <!-- Active Chat Wrapper -->
+      <div id="activeChatWrapper" class="hidden flex-1 flex-col h-full">
+        <!-- Chat Header with Voice Call Controls -->
+        <div class="p-3.5 border-b border-gray-200 dark:border-navy-700 flex justify-between items-center bg-gray-50/50 dark:bg-navy-900/30">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <img id="activeUserAvatar" src="" class="w-10 h-10 rounded-full object-cover border border-gold-500/40" alt="Customer">
+              <span id="activeUserStatusDot" class="w-3 h-3 bg-green-500 rounded-full absolute bottom-0 right-0 border-2 border-white dark:border-navy-800"></span>
+            </div>
+            <div>
+              <h3 id="activeUserName" class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2"></h3>
+              <span id="activeUserStatusText" class="text-[11px] text-green-500 font-medium flex items-center gap-1"></span>
+            </div>
+          </div>
+
+          <!-- Voice Calling & Action Controls -->
+          <div class="flex items-center gap-1.5">
+            <button onclick="startVoiceCall()" class="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-xl transition border border-emerald-500/30 flex items-center gap-1.5 text-xs font-bold" title="Maqal Wicitaan (Voice Call)">
+              <i class="fa-solid fa-phone text-emerald-500"></i>
+              <span class="hidden lg:inline text-[11px]">Voice Call</span>
+            </button>
+
+            <button onclick="showCallLogsModal()" class="p-2.5 text-gray-600 dark:text-gray-300 hover:text-gold-500 hover:bg-gold-500/10 rounded-xl transition border border-transparent hover:border-gold-500/30 flex items-center gap-1 text-xs font-semibold" title="Call Logs">
+              <i class="fa-solid fa-clock-rotate-left text-gold-500"></i>
+              <span class="hidden lg:inline text-[11px]">Call Logs</span>
+            </button>
+
+            <button onclick="clearCurrentChat()" class="p-2 text-gray-500 dark:text-gray-400 hover:text-red-400 hover:bg-gray-100 dark:hover:bg-navy-700 rounded-xl transition" title="Malaas Chat-ka">
+              <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+            
+            <button onclick="toggleCustomerDetails()" class="p-2 text-gray-500 dark:text-gray-400 hover:text-gold-500 hover:bg-gray-100 dark:hover:bg-navy-700 rounded-xl transition" title="Customer Support Xogta">
+              <i class="fa-solid fa-circle-info text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Reply Shortcuts Bar -->
+        <div class="px-4 py-2 bg-gray-50 dark:bg-navy-900/40 border-b border-gray-200 dark:border-navy-700/60 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs">
+          <span class="text-[11px] text-gray-400 font-medium shrink-0"><i class="fa-solid fa-bolt text-gold-500 mr-1"></i>Jawaab degdeg ah:</span>
+          <button onclick="sendQuickReply('Waa calaykumusalaam, si fiican ayaad u timid Customer Support! Ma ku caawin karaa?')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-gray-700 dark:text-gray-300 hover:border-gold-500 hover:text-gold-500 transition text-[11px]">
+            👋 Soo dhawoow
+          </button>
+          <button onclick="sendQuickReply('Dalabkaaga waa loo diyaarinayaa, Customer Support ayaa dhakhso ugu soo diri doona.')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-gray-700 dark:text-gray-300 hover:border-gold-500 hover:text-gold-500 transition text-[11px]">
+            📦 Dalabkaaga
+          </button>
+          <button onclick="sendQuickReply('Mahadsanid! Waad ku mahadsan tahay inaad la soo xidhiidhto Customer Support.')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-gray-700 dark:text-gray-300 hover:border-gold-500 hover:text-gold-500 transition text-[11px]">
+            🙏 Mahadsanid
+          </button>
+          <button onclick="sendQuickReply('Fadlan fariin yar sug, Customer Support ayaa kugu soo jawaabi doona.')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 text-gray-700 dark:text-gray-300 hover:border-gold-500 hover:text-gold-500 transition text-[11px]">
+            ⏳ Sug fariin
+          </button>
+        </div>
+
+        <!-- Messages History Container -->
+        <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4">
+          <!-- Dynamic chat messages inserted here -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="hidden px-4 py-1 text-xs text-gray-400 italic items-center gap-2">
+          <span id="typingUserName">Macmiilka</span> ayaa qoraya Customer Support
+          <span class="inline-flex items-center gap-0.5">
+            <span class="w-1.5 h-1.5 bg-gold-500 rounded-full animate-bounce"></span>
+            <span class="w-1.5 h-1.5 bg-gold-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 bg-gold-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+          </span>
+        </div>
+
+        <!-- File Preview Area -->
+        <div id="filePreviewArea" class="hidden px-4 py-2 bg-gray-100 dark:bg-navy-900 border-t border-gray-200 dark:border-navy-700 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-image text-gold-500 text-lg"></i>
+            <span id="fileNameDisplay" class="text-xs text-gray-700 dark:text-gray-300 font-medium truncate max-w-xs">image.png</span>
+          </div>
+          <button onclick="cancelFileUpload()" class="text-gray-400 hover:text-red-400 text-sm">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Message Input Form -->
+        <form onsubmit="sendMessage(event)" class="p-3 border-t border-gray-200 dark:border-navy-700 bg-gray-50/50 dark:bg-navy-900/30 flex items-center gap-2">
+          <label class="p-2 text-gray-400 hover:text-gold-500 transition cursor-pointer" title="Soo upload gareey sawir/fayl">
+            <i class="fa-solid fa-paperclip text-base"></i>
+            <input type="file" id="fileInput" onchange="handleFileSelect(event)" class="hidden" accept="image/*">
+          </label>
+
+          <input id="messageInput" type="text" placeholder="Qor fariintaada Customer Support..." class="flex-1 bg-white dark:bg-navy-900 border border-gray-300 dark:border-navy-700 rounded-xl px-4 py-2.5 text-xs text-gray-900 dark:text-white outline-none focus:border-gold-500 transition shadow-inner">
+
+          <button type="submit" class="bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5 shrink-0">
+            <span class="hidden sm:inline text-xs">Dir</span>
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Voice Call Overlay Screen -->
+  <div id="callOverlay" class="fixed inset-0 bg-navy-900/95 backdrop-blur-xl hidden flex-col justify-between p-4 sm:p-6 z-50 transition-all duration-300">
+    
+    <!-- Top Header Bar inside Call -->
+    <div class="w-full max-w-4xl mx-auto flex justify-between items-center text-white shrink-0 z-20">
+      <div class="flex items-center gap-2 bg-navy-800/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-navy-700 shadow-lg">
+        <i class="fa-solid fa-phone text-emerald-400 text-xs"></i>
+        <span class="text-xs font-semibold text-gray-200">Customer Support Voice Call</span>
+      </div>
+      
+      <div id="callTimer" class="font-mono text-gold-400 text-sm font-bold bg-navy-800/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-navy-700 shadow-lg">
+        00:00
+      </div>
+    </div>
+
+    <!-- Active Call Display Container -->
+    <div class="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto my-3 relative overflow-hidden rounded-3xl border border-navy-700/60 bg-black/40">
+      <div class="flex flex-col items-center justify-center p-6 z-10">
+        <div class="relative mb-6">
+          <div class="absolute -inset-4 rounded-full bg-gold-500/20 animate-ping opacity-75"></div>
+          <div class="absolute -inset-8 rounded-full bg-gold-500/10 animate-pulse"></div>
+          <img id="callAvatar" src="" class="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-gold-500 relative z-10 shadow-2xl" alt="Caller">
+        </div>
+        
+        <h2 id="callName" class="text-xl sm:text-2xl font-extrabold text-white mb-1">Macmiil</h2>
+        <p id="callStatusText" class="text-xs text-gold-400 font-medium flex items-center gap-1.5">
+          <i class="fa-solid fa-signal text-[10px]"></i> Customer Support Direct Voice Line...
+        </p>
+
+        <!-- Live Audio Wave Equalizer -->
+        <div id="audioWaveVisualizer" class="flex items-center gap-1.5 h-10 mt-8 px-4 py-2 bg-navy-800/60 rounded-full border border-navy-700">
+          <div class="w-1.5 bg-gold-400 rounded-full wave-bar" style="animation-delay: 0.1s;"></div>
+          <div class="w-1.5 bg-gold-500 rounded-full wave-bar" style="animation-delay: 0.3s;"></div>
+          <div class="w-1.5 bg-emerald-400 rounded-full wave-bar" style="animation-delay: 0.2s;"></div>
+          <div class="w-1.5 bg-gold-400 rounded-full wave-bar" style="animation-delay: 0.5s;"></div>
+          <div class="w-1.5 bg-emerald-500 rounded-full wave-bar" style="animation-delay: 0.1s;"></div>
+          <div class="w-1.5 bg-gold-300 rounded-full wave-bar" style="animation-delay: 0.4s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call Control Buttons Bar -->
+    <div class="w-full max-w-sm mx-auto bg-navy-800/90 backdrop-blur-lg border border-navy-700/80 p-3.5 sm:p-4 rounded-3xl flex items-center justify-around gap-2 shadow-2xl shrink-0 z-20">
+      <!-- Mute Button -->
+      <button onclick="toggleCallMute()" id="muteBtn" class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-navy-700 hover:bg-navy-600 text-white flex items-center justify-center transition border border-navy-600" title="Aamusii (Mute)">
+        <i id="muteIcon" class="fa-solid fa-microphone text-base sm:text-lg"></i>
+      </button>
+
+      <!-- Speaker Toggle -->
+      <button onclick="toggleCallSpeaker()" id="speakerBtn" class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-navy-700 hover:bg-navy-600 text-white flex items-center justify-center transition border border-navy-600" title="Codweyneeye (Speaker)">
+        <i id="speakerIcon" class="fa-solid fa-volume-high text-base sm:text-lg"></i>
+      </button>
+
+      <!-- End Call Button -->
+      <button onclick="endVoiceCall()" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition shadow-lg shadow-red-600/40" title="Jar Wicitaanka (Hang Up)">
+        <i class="fa-solid fa-phone-slash text-lg sm:text-xl"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- General Modal Container -->
+  <div id="customModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+      <div id="modalContent" class="text-center space-y-4">
+        <!-- Injected Dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase Library-ga Rasmiga Ah -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- File-kaaga Konfiga oo Xiriirinaya Supabase -->
+  <script src="supabase-config.js"></script>
+
+  <script>
+    let customersData = [];
+    let callLogs = [];
+
+    let activeCustomerId = null;
+    let selectedFile = null;
+
+    let callInterval = null;
+    let callSeconds = 0;
+    let isMuted = false;
+    let isSpeakerOn = false;
+
+    function getSupabase() {
+      if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+        return window.supabaseClient;
+      }
+      if (window.supabase && typeof window.supabase.from === 'function') {
+        return window.supabase;
+      }
+      return null;
+    }
+
+    window.onload = function() {
+      loadSupportDataFromSupabase();
+    };
+
+    async function loadSupportDataFromSupabase() {
+      const db = getSupabase();
+      if (db) {
+        try {
+          const { data: messagesData } = await db.from('support_messages').select('*');
+          if (messagesData && messagesData.length > 0) {
+            // Group messages by customer if stored in DB
+          }
+        } catch (err) {
+          console.warn("Supabase load warning, using local state.", err);
+        }
+      }
+      renderCustomerList();
+      updateGlobalUnreadBadge();
+    }
+
+    function renderCustomerList(filterText = '') {
+      const container = document.getElementById('customersListContainer');
+      container.innerHTML = '';
+
+      const filtered = customersData.filter(c => 
+        c.name.toLowerCase().includes(filterText.toLowerCase()) || 
+        c.messages.some(m => m.text.toLowerCase().includes(filterText.toLowerCase()))
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-gray-400 text-xs">
+            <i class="fa-solid fa-users-slash text-2xl mb-2 text-gray-500"></i>
+            <p>Waqti xaadirkan ma jiro macmiil liiska ku jira.</p>
+          </div>
+        `;
+        document.getElementById('totalActiveCount').innerText = '0';
+        return;
+      }
+
+      filtered.forEach(customer => {
+        const isActive = customer.id === activeCustomerId;
+        const lastMsg = customer.messages[customer.messages.length - 1] || { text: 'Fariin ma jirto', time: '' };
+        
+        const card = document.createElement('div');
+        card.className = `p-3.5 flex items-center gap-3 cursor-pointer transition ${
+          isActive 
+            ? 'bg-gray-100 dark:bg-navy-900/80 border-l-4 border-gold-500 font-semibold' 
+            : 'hover:bg-gray-50 dark:hover:bg-navy-900/40 border-l-4 border-transparent'
+        }`;
+        card.onclick = () => selectCustomer(customer.id);
+
+        card.innerHTML = `
+          <div class="relative shrink-0">
+            <img src="${customer.avatar}" class="w-10 h-10 rounded-full object-cover border border-gray-300 dark:border-navy-700" alt="${customer.name}">
+            <span class="w-3 h-3 ${customer.status === 'online' ? 'bg-green-500' : 'bg-gray-400'} rounded-full absolute bottom-0 right-0 border-2 border-white dark:border-navy-800"></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-baseline">
+              <h4 class="text-xs font-bold text-gray-900 dark:text-white truncate">${customer.name}</h4>
+              <span class="text-[10px] text-gray-400 shrink-0 ml-1">${lastMsg.time}</span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 font-normal">${lastMsg.text}</p>
+          </div>
+          ${customer.unread > 0 ? `
+            <span class="bg-gold-500 text-navy-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm animate-pulse-fast">
+              ${customer.unread}
+            </span>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+
+      document.getElementById('totalActiveCount').innerText = customersData.filter(c => c.status === 'online').length;
+    }
+
+    function selectCustomer(id) {
+      activeCustomerId = id;
+      const customer = customersData.find(c => c.id === id);
+      if (customer) {
+        customer.unread = 0;
+      }
+
+      document.getElementById('noActiveChatPlaceholder').classList.add('hidden');
+      document.getElementById('activeChatWrapper').classList.remove('hidden');
+      document.getElementById('activeChatWrapper').classList.add('flex');
+      
+      renderCustomerList(document.getElementById('searchInput').value);
+      loadCustomerChat(id);
+      updateGlobalUnreadBadge();
+
+      if (window.innerWidth < 768) {
+        document.getElementById('customerListSidebar').classList.add('hidden');
+        document.getElementById('chatArea').classList.remove('hidden');
+        document.getElementById('chatArea').classList.add('flex');
+        document.getElementById('mobileBackBtn').classList.remove('hidden');
+      }
+    }
+
+    function showCustomerListOnMobile() {
+      document.getElementById('customerListSidebar').classList.remove('hidden');
+      document.getElementById('chatArea').classList.add('hidden');
+      document.getElementById('chatArea').classList.remove('flex');
+      document.getElementById('mobileBackBtn').classList.add('hidden');
+    }
+
+    function loadCustomerChat(id) {
+      const customer = customersData.find(c => c.id === id);
+      if (!customer) return;
+
+      document.getElementById('activeUserAvatar').src = customer.avatar;
+      document.getElementById('activeUserName').innerHTML = `
+        ${customer.name} 
+        <span class="text-[10px] bg-gold-500/20 text-gold-600 dark:text-gold-400 font-semibold px-2 py-0.5 rounded-full border border-gold-500/30">${customer.badge}</span>
+      `;
+
+      const statusDot = document.getElementById('activeUserStatusDot');
+      const statusText = document.getElementById('activeUserStatusText');
+
+      if (customer.status === 'online') {
+        statusDot.className = 'w-3 h-3 bg-green-500 rounded-full absolute bottom-0 right-0 border-2 border-white dark:border-navy-800';
+        statusText.className = 'text-[11px] text-green-500 font-medium flex items-center gap-1';
+        statusText.innerHTML = `<span class="w-2 h-2 bg-green-500 rounded-full"></span> Online`;
+      } else {
+        statusDot.className = 'w-3 h-3 bg-gray-400 rounded-full absolute bottom-0 right-0 border-2 border-white dark:border-navy-800';
+        statusText.className = 'text-[11px] text-gray-400 font-medium flex items-center gap-1';
+        statusText.innerHTML = `<span class="w-2 h-2 bg-gray-400 rounded-full"></span> Offline`;
+      }
+
+      const messagesContainer = document.getElementById('chatMessages');
+      messagesContainer.innerHTML = '';
+
+      customer.messages.forEach(msg => {
+        appendMessageUI(msg.sender, msg.text, msg.time, msg.file);
+      });
+
+      scrollToBottom();
+    }
+
+    function appendMessageUI(sender, text, time, file = null) {
+      const container = document.getElementById('chatMessages');
+      const msgDiv = document.createElement('div');
+
+      if (sender === 'vendor') {
+        msgDiv.className = 'flex items-end justify-end gap-2 max-w-[85%] sm:max-w-[75%] ml-auto';
+        msgDiv.innerHTML = `
+          <div class="bg-gold-500 text-navy-900 p-3.5 rounded-2xl rounded-br-none shadow-sm">
+            ${file ? `<div class="mb-2 rounded-lg overflow-hidden border border-navy-900/20"><img src="${file}" class="max-w-full h-auto max-h-48 object-cover"></div>` : ''}
+            <p class="text-xs font-semibold leading-relaxed">${escapeHtml(text)}</p>
+            <span class="text-[10px] text-navy-900/70 block mt-1 text-right font-medium">${time}</span>
+          </div>
+        `;
+      } else {
+        const customer = customersData.find(c => c.id === activeCustomerId);
+        msgDiv.className = 'flex items-end gap-2 max-w-[85%] sm:max-w-[75%]';
+        msgDiv.innerHTML = `
+          <img src="${customer ? customer.avatar : ''}" class="w-7 h-7 rounded-full object-cover shrink-0" alt="User">
+          <div class="bg-gray-100 dark:bg-navy-900 p-3.5 rounded-2xl rounded-bl-none border border-gray-200 dark:border-navy-700">
+            ${file ? `<div class="mb-2 rounded-lg overflow-hidden border border-gray-300 dark:border-navy-700"><img src="${file}" class="max-w-full h-auto max-h-48 object-cover"></div>` : ''}
+            <p class="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">${escapeHtml(text)}</p>
+            <span class="text-[10px] text-gray-400 block mt-1">${time}</span>
+          </div>
+        `;
+      }
+
+      container.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    async function sendMessage(e) {
+      if (e) e.preventDefault();
+
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+
+      if (!text && !selectedFile) return;
+
+      const currentTime = getCurrentTimeFormatted();
+      const customer = customersData.find(c => c.id === activeCustomerId);
+      if (!customer) return;
+
+      const newMsg = {
+        sender: 'vendor',
+        text: text || 'Fayl la soo diray Customer Support',
+        time: currentTime,
+        file: selectedFile
+      };
+
+      customer.messages.push(newMsg);
+      customer.lastTime = currentTime;
+
+      appendMessageUI('vendor', newMsg.text, newMsg.time, newMsg.file);
+
+      input.value = '';
+      cancelFileUpload();
+      renderCustomerList(document.getElementById('searchInput').value);
+
+      const db = getSupabase();
+      if (db) {
+        try {
+          await db.from('support_messages').insert([{
+            customer_id: customer.id,
+            sender: 'vendor',
+            message: newMsg.text
+          }]);
+        } catch (err) {}
+      }
+
+      triggerCustomerAutoReply(customer);
+    }
+
+    function sendQuickReply(replyText) {
+      document.getElementById('messageInput').value = replyText;
+      sendMessage();
+    }
+
+    function triggerCustomerAutoReply(customer) {
+      const typingInd = document.getElementById('typingIndicator');
+      document.getElementById('typingUserName').innerText = customer.name;
+
+      setTimeout(() => {
+        typingInd.classList.remove('hidden');
+        typingInd.classList.add('flex');
+        scrollToBottom();
+      }, 1000);
+
+      setTimeout(() => {
+        typingInd.classList.add('hidden');
+        typingInd.classList.remove('flex');
+
+        const replyPool = customer.autoReplies && customer.autoReplies.length > 0 
+          ? customer.autoReplies 
+          : ['Mahadsanid jawaabtaada Customer Support!', 'Haa waan fahmay, mahadsanid.'];
+        
+        const randomReply = replyPool[Math.floor(Math.random() * replyPool.length)];
+        const replyTime = getCurrentTimeFormatted();
+
+        const autoMsg = {
+          sender: 'customer',
+          text: randomReply,
+          time: replyTime
+        };
+
+        customer.messages.push(autoMsg);
+        customer.lastTime = replyTime;
+
+        if (customer.id === activeCustomerId) {
+          appendMessageUI('customer', autoMsg.text, autoMsg.time);
+        } else {
+          customer.unread += 1;
+        }
+
+        renderCustomerList(document.getElementById('searchInput').value);
+        updateGlobalUnreadBadge();
+      }, 3000);
+    }
+
+    function startVoiceCall() {
+      const customer = customersData.find(c => c.id === activeCustomerId);
+      if (!customer) return;
+
+      const overlay = document.getElementById('callOverlay');
+      isMuted = false;
+      isSpeakerOn = false;
+
+      updateCallControlsUI();
+
+      document.getElementById('callAvatar').src = customer.avatar;
+      document.getElementById('callName').innerText = customer.name;
+
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+
+      callSeconds = 0;
+      updateCallTimerDisplay();
+      clearInterval(callInterval);
+      callInterval = setInterval(() => {
+        callSeconds++;
+        updateCallTimerDisplay();
+      }, 1000);
+    }
+
+    function updateCallTimerDisplay() {
+      const mins = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+      const secs = String(callSeconds % 60).padStart(2, '0');
+      document.getElementById('callTimer').innerText = `${mins}:${secs}`;
+    }
+
+    function toggleCallMute() {
+      isMuted = !isMuted;
+      const muteBtn = document.getElementById('muteBtn');
+      const muteIcon = document.getElementById('muteIcon');
+
+      if (isMuted) {
+        muteBtn.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-red-600/30 text-red-400 flex items-center justify-center transition border border-red-500/40';
+        muteIcon.className = 'fa-solid fa-microphone-slash text-base sm:text-lg';
+      } else {
+        muteBtn.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-navy-700 hover:bg-navy-600 text-white flex items-center justify-center transition border border-navy-600';
+        muteIcon.className = 'fa-solid fa-microphone text-base sm:text-lg';
+      }
+    }
+
+    function toggleCallSpeaker() {
+      isSpeakerOn = !isSpeakerOn;
+      const speakerBtn = document.getElementById('speakerBtn');
+      const speakerIcon = document.getElementById('speakerIcon');
+
+      if (isSpeakerOn) {
+        speakerBtn.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gold-500 text-navy-900 font-bold flex items-center justify-center transition border border-gold-400';
+        speakerIcon.className = 'fa-solid fa-volume-high text-base sm:text-lg';
+      } else {
+        speakerBtn.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-navy-700 hover:bg-navy-600 text-white flex items-center justify-center transition border border-navy-600';
+        speakerIcon.className = 'fa-solid fa-volume-low text-base sm:text-lg';
+      }
+    }
+
+    function updateCallControlsUI() {
+      const muteBtn = document.getElementById('muteBtn');
+      const muteIcon = document.getElementById('muteIcon');
+      muteBtn.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-navy-700 hover:bg-navy-600 text-white flex items-center justify-center transition border border-navy-600';
+      muteIcon.className = 'fa-solid fa-microphone text-base sm:text-lg';
+
+      const speakerBtn = document.getElementById('speakerBtn');
+      const speakerIcon = document.getElementById('speakerIcon');
+      speakerBtn.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-navy-700 hover:bg-navy-600 text-white flex items-center justify-center transition border border-navy-600';
+      speakerIcon.className = 'fa-solid fa-volume-high text-base sm:text-lg';
+    }
+
+    function endVoiceCall() {
+      clearInterval(callInterval);
+      const customer = customersData.find(c => c.id === activeCustomerId);
+
+      if (customer) {
+        const mins = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+        const secs = String(callSeconds % 60).padStart(2, '0');
+        const durationStr = `${mins}:${secs}`;
+        
+        callLogs.unshift({
+          customerName: customer.name,
+          duration: durationStr,
+          time: getCurrentTimeFormatted(),
+          type: 'Outgoing Voice Call'
+        });
+      }
+
+      const overlay = document.getElementById('callOverlay');
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+    }
+
+    function showCallLogsModal() {
+      let logsHtml = callLogs.map(log => `
+        <div class="p-3 bg-gray-100 dark:bg-navy-900 rounded-xl flex items-center justify-between text-xs border border-gray-200 dark:border-navy-700">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-phone text-emerald-500"></i>
+            <div>
+              <p class="font-bold text-gray-800 dark:text-gray-200">${log.customerName}</p>
+              <p class="text-[10px] text-gray-400">${log.type} • ${log.time}</p>
+            </div>
+          </div>
+          <span class="font-mono text-gold-500 font-bold">${log.duration}</span>
+        </div>
+      `).join('');
+
+      if (callLogs.length === 0) {
+        logsHtml = `<p class="text-xs text-gray-400 text-center py-4">Weli ma jiro wicitaano dhacay.</p>`;
+      }
+
+      showModal(`
+        <div class="text-left">
+          <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-gold-500"></i> Voice Call Logs
+          </h3>
+          <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            ${logsHtml}
+          </div>
+          <button onclick="closeModal()" class="mt-4 w-full bg-navy-700 hover:bg-navy-600 text-white font-bold py-2 rounded-xl text-xs transition">
+            Xir Window-ga
+          </button>
+        </div>
+      `);
+    }
+
+    function simulateIncomingCustomer() {
+      const mockNames = ['Maxamed Cali', 'Amina Xasan', 'Axmed Nuur', 'Maryan Cabdi', 'Khaalid Jaamac'];
+      const randomName = mockNames[Math.floor(Math.random() * mockNames.length)];
+      const randomId = 'c_' + Date.now();
+      const timeNow = getCurrentTimeFormatted();
+
+      const newCustomer = {
+        id: randomId,
+        name: randomName,
+        avatar: `https://images.unsplash.com/photo-${1535713875002 + Math.floor(Math.random()*100)}?w=100`,
+        status: 'online',
+        badge: 'Macmiil Cusub',
+        phone: '+252 61 ' + Math.floor(100000 + Math.random() * 900000),
+        unread: 1,
+        lastTime: timeNow,
+        messages: [
+          { sender: 'customer', text: 'Asc Customer Support, waxaan rabaa inaan faahfaahin ka helo xubinta adeegyadiina.', time: timeNow }
+        ],
+        autoReplies: [
+          'Mahadsanid jawaabtaada Customer Support!',
+          'Haa waan fahmay, mahadsanid.'
+        ]
+      };
+
+      customersData.unshift(newCustomer);
+
+      if (!activeCustomerId) {
+        selectCustomer(newCustomer.id);
+      } else {
+        renderCustomerList(document.getElementById('searchInput').value);
+        updateGlobalUnreadBadge();
+      }
+    }
+
+    function toggleCustomerDetails() {
+      const customer = customersData.find(c => c.id === activeCustomerId);
+      if (!customer) return;
+
+      showModal(`
+        <div class="text-center">
+          <img src="${customer.avatar}" class="w-20 h-20 rounded-full object-cover mx-auto mb-3 border-2 border-gold-500">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">${customer.name}</h3>
+          <p class="text-xs text-gold-500 font-semibold mt-0.5">${customer.badge}</p>
+          
+          <div class="mt-4 p-3 bg-gray-100 dark:bg-navy-900 rounded-xl text-left space-y-2 text-xs">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Telefoonka:</span>
+              <span class="font-medium text-gray-800 dark:text-gray-200">${customer.phone}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Status-ka:</span>
+              <span class="${customer.status === 'online' ? 'text-green-500' : 'text-gray-400'} font-semibold uppercase">${customer.status}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Fariimaha Total:</span>
+              <span class="font-medium text-gray-800 dark:text-gray-200">${customer.messages.length}</span>
+            </div>
+          </div>
+
+          <button onclick="closeModal()" class="mt-5 w-full bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold py-2 rounded-xl text-xs transition">
+            Xir Window-ga
+          </button>
+        </div>
+      `);
+    }
+
+    function showNotificationModal() {
+      const unreadCount = customersData.reduce((sum, c) => sum + c.unread, 0);
+      showModal(`
+        <div class="text-left">
+          <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <i class="fa-regular fa-bell text-gold-500"></i> Customer Support Ogaysiisyo
+          </h3>
+          <div class="space-y-2 text-xs">
+            <div class="p-3 bg-gray-100 dark:bg-navy-900 rounded-xl border-l-4 border-gold-500">
+              <p class="font-bold text-gray-800 dark:text-gray-200">${unreadCount} Fariimo aan la akhrin</p>
+              <p class="text-gray-400 text-[11px]">Kawaad ka jawaab fariimaha macaamiisha si dhakhso ah.</p>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="mt-4 w-full bg-navy-700 hover:bg-navy-600 text-white font-bold py-2 rounded-xl text-xs transition">
+            Xir
+          </button>
+        </div>
+      `);
+    }
+
+    function filterCustomers() {
+      const val = document.getElementById('searchInput').value;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (val.trim() !== '') {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderCustomerList(val);
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      filterCustomers();
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          selectedFile = e.target.result;
+          document.getElementById('fileNameDisplay').innerText = file.name;
+          document.getElementById('filePreviewArea').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function cancelFileUpload() {
+      selectedFile = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('filePreviewArea').classList.add('hidden');
+    }
+
+    function scrollToBottom() {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function getCurrentTimeFormatted() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      return hours + ':' + minutes + ' ' + ampm;
+    }
+
+    function updateGlobalUnreadBadge() {
+      const totalUnread = customersData.reduce((sum, c) => sum + c.unread, 0);
+      const badge = document.getElementById('globalUnreadBadge');
+      document.getElementById('totalUnreadCount').innerText = totalUnread;
+
+      if (totalUnread > 0) {
+        badge.innerText = totalUnread;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+      } else {
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+      }
+    }
+
+    function clearCurrentChat() {
+      if (!activeCustomerId) return;
+      customersData = customersData.filter(c => c.id !== activeCustomerId);
+      activeCustomerId = null;
+
+      document.getElementById('activeChatWrapper').classList.add('hidden');
+      document.getElementById('activeChatWrapper').classList.remove('flex');
+      document.getElementById('noActiveChatPlaceholder').classList.remove('hidden');
+
+      renderCustomerList(document.getElementById('searchInput').value);
+      updateGlobalUnreadBadge();
+    }
+
+    function showModal(htmlContent) {
+      document.getElementById('modalContent').innerHTML = htmlContent;
+      const modal = document.getElementById('customModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('customModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeIcon.className = 'fa-solid fa-sun text-amber-500 text-sm';
+      } else {
+        html.classList.add('dark');
+        themeIcon.className = 'fa-solid fa-moon text-gold-500 text-sm';
+      }
+    }
+
+    function handleLogout() {
+      window.location.href = '/customer-support/support.html';
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>

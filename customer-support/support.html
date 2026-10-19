@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veyzo Store - Customer Support Login</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#0B132B] min-h-screen flex items-center justify-center p-4 text-white font-sans antialiased">
+
+  <div class="w-full max-w-md bg-[#131C31] rounded-2xl p-6 md:p-8 shadow-2xl border border-slate-800/80">
+    
+    <!-- Header / Icon -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1C2744] mb-4 text-[#E5B834] shadow-inner border border-slate-700/50">
+        <i data-lucide="headphones" class="w-8 h-8"></i>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-white">
+        Customer Support
+      </h1>
+      <p class="text-slate-400 text-sm mt-1.5">
+        Fadlan geli xogtaada si aad u gasho <span class="text-[#E5B834] font-medium">Veyzo Support</span>
+      </p>
+    </div>
+
+    <!-- Login Form -->
+    <form class="space-y-5" onsubmit="handleLogin(event)">
+      
+      <!-- Email Field -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-medium text-slate-300 ml-1">Email</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i data-lucide="mail" class="w-5 h-5"></i>
+          </div>
+          <input 
+            type="email" 
+            id="support-email"
+            required
+            placeholder="Email-kaaga" 
+            class="w-full bg-[#2A364F] text-slate-100 placeholder-[#8C9BAE] text-sm rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#E5B834] transition-all border border-transparent"
+          >
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-medium text-slate-300 ml-1">Furo Sireed</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i data-lucide="lock" class="w-5 h-5"></i>
+          </div>
+          <input 
+            type="password" 
+            id="support-password"
+            required
+            placeholder="Furo sireed (Password)" 
+            class="w-full bg-[#2A364F] text-slate-100 placeholder-[#8C9BAE] text-sm rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#E5B834] transition-all border border-transparent"
+          >
+        </div>
+      </div>
+
+      <!-- Status Notification Message -->
+      <div id="statusMessage" class="hidden p-3 rounded-xl text-xs text-center transition-all"></div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        id="submit-btn"
+        class="w-full bg-[#E5B834] hover:bg-[#d4a72d] text-slate-950 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all transform active:scale-[0.99] shadow-lg shadow-[#E5B834]/10 mt-6"
+      >
+        <i data-lucide="send" class="w-4 h-4"></i>
+        <span>Gudbi</span>
+      </button>
+
+    </form>
+  </div>
+
+  <!-- Supabase Library-ga Rasmiga Ah -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- File-kaaga Konfiga oo Xiriirinaya Supabase -->
+  <script src="supabase-config.js"></script>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    function getSupabase() {
+      if (window.supabaseClient && typeof window.supabaseClient.auth === 'object') {
+        return window.supabaseClient;
+      }
+      if (window.supabase && typeof window.supabase.auth === 'object') {
+        return window.supabase;
+      }
+      return null;
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('support-email').value;
+      const password = document.getElementById('support-password').value;
+      const msgBox = document.getElementById('statusMessage');
+      const submitBtn = document.getElementById('submit-btn');
+
+      msgBox.classList.remove('hidden', 'bg-red-500/10', 'text-red-400', 'bg-emerald-500/10', 'text-emerald-400', 'border');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Fadlan sug...';
+
+      try {
+        const db = getSupabase();
+        
+        if (db && db.auth) {
+          const { data, error } = await db.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+          if (error) throw error;
+        }
+
+        // Save session status for Support page
+        localStorage.setItem('support_logged_in', 'true');
+        localStorage.setItem('support_email', email);
+
+        msgBox.className = 'p-3 rounded-xl text-xs text-center transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+        msgBox.innerText = '✅ Guul! Waad ku guuleysatay inaad gasho Customer Support-ka. Waa lagu celinayaa...';
+
+        setTimeout(() => {
+          window.location.href = "support.html"; // U gudub bogga Customer Support-ka
+        }, 1500);
+
+      } catch (err) {
+        msgBox.className = 'p-3 rounded-xl text-xs text-center transition-all bg-red-500/10 text-red-400 border border-red-500/20';
+        msgBox.innerText = '❌ Cillad: ' + (err.message || 'Email-ka ama furaha sireedka waa khalad.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i><span>Gudbi</span>';
+        lucide.createIcons();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veyzo Store - Suuqa Macaamiisha</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#F4F5F7] font-sans antialiased text-gray-800 pb-20">
+
+  <!-- ================= HEADER & NAVIGATION ================= -->
+  <header class="bg-[#0B1426] text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+
+      <button id="backBtn" onclick="showCatalog()" class="hidden text-white text-lg pr-1 hover:text-gray-300">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <!-- Search Input -->
+      <div class="flex-1 relative flex items-center bg-white rounded-full px-3 py-1.5 shadow-inner">
+        <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm mr-2"></i>
+        <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Raadi alaabta Veyzo Store..." class="w-full bg-transparent text-sm text-gray-800 outline-none">
+      </div>
+
+      <div class="flex items-center gap-2.5 sm:gap-4">
+        <!-- Notifications -->
+        <button onclick="openModal('notificationModal')" class="relative hover:text-gray-300 text-lg" title="Ogeysiisyada">
+          <i class="fa-regular fa-bell"></i>
+          <span id="notifBadge" class="hidden absolute -top-1.5 -right-2 bg-emerald-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+
+        <!-- Shopping Cart -->
+        <button onclick="openModal('cartModal')" class="relative hover:text-gray-300 text-lg" title="Gaadhiga Iibsiga">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span id="cartBadge" class="hidden absolute -top-1.5 -right-2 bg-blue-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+
+        <!-- USER PROFILE BUTTON -->
+        <button onclick="openModal('profileModal')" class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-400/40 transition" title="Akoonkaaga">
+          <i class="fa-solid fa-user text-sm"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ================= VIEW 1: CATALOG & CATEGORIES ================= -->
+  <main id="catalogView" class="max-w-4xl mx-auto p-3 sm:p-4">
+
+    <!-- Category Pills -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-3 text-xs no-scrollbar">
+      <button onclick="filterCategory('all', this)" class="cat-pill bg-[#0B1426] text-white px-3.5 py-1.5 rounded-full font-medium flex-shrink-0 transition-colors">Dhammaan</button>
+      <button onclick="filterCategory('Boorsooyinka', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Boorsooyinka</button>
+      <button onclick="filterCategory('Kabaha', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Kabaha</button>
+      <button onclick="filterCategory('Catarada', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Cadarrada</button>
+      <button onclick="filterCategory('Sacadaha', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Saacadaha</button>
+      <button onclick="filterCategory('Suits-ka', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Suits</button>
+      <button onclick="filterCategory('Dharka Ragga', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Dharka Ragga</button>
+      <button onclick="filterCategory('Dharka Dumarka', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Dharka Dumarka</button>
+      <button onclick="filterCategory('Dharka Caruurta', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Dharka Caruurta</button>
+      <button onclick="filterCategory('Elektronig', this)" class="cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors">Aaladaha Elektaroonigga</button>
+    </div>
+
+    <!-- Product Grid -->
+    <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-1">
+      <!-- Dynamic Products Injected Here -->
+    </div>
+  </main>
+
+
+  <!-- ================= VIEW 2: PRODUCT DETAIL PAGE ================= -->
+  <main id="detailView" class="hidden max-w-2xl mx-auto bg-white min-h-screen pb-20">
+    <div class="relative bg-gray-50 w-full aspect-square flex items-center justify-center border-b">
+      <img id="detailImage" src="" class="max-h-80 object-contain" alt="Alaabta La Doortay">
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div>
+        <div class="flex items-center justify-between">
+          <span id="detailCategory" class="text-[11px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Qeybta</span>
+          <span id="detailStore" class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+            <i class="fa-solid fa-store mr-1"></i> Dukaanka: -
+          </span>
+        </div>
+        <h1 id="detailTitle" class="text-base font-bold text-gray-900 mt-2 leading-snug">Magaca Alaabta</h1>
+        <p id="detailDesc" class="text-xs text-gray-500 mt-1">Faahfaahinta gaaban ee alaabta...</p>
+      </div>
+
+      <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border">
+        <div>
+          <span class="text-xs text-gray-500 block">Qiimaha Alaabta:</span>
+          <span id="detailPrice" class="text-xl font-extrabold text-[#0B1426]">$0.00</span>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-gray-500 block">Khadka Hadda Jira:</span>
+          <span id="detailStock" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">0 xabbo</span>
+        </div>
+      </div>
+
+      <!-- QUANTITY SELECTOR ON DETAIL VIEW -->
+      <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border">
+        <span class="text-xs font-bold text-gray-700">Tirada aad rabto (Quantity):</span>
+        <div class="flex items-center gap-3">
+          <button onclick="decrementDetailQty()" class="w-8 h-8 rounded-lg bg-white border border-gray-300 font-bold text-gray-700 hover:bg-gray-100 flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-minus text-xs"></i>
+          </button>
+          <span id="detailQty" class="text-sm font-extrabold w-6 text-center">1</span>
+          <button onclick="incrementDetailQty()" class="w-8 h-8 rounded-lg bg-white border border-gray-300 font-bold text-gray-700 hover:bg-gray-100 flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-plus text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+  <!-- ================= FIXED BOTTOM BAR FOR DETAILS ================= -->
+  <div id="bottomBar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 z-40">
+    <div class="max-w-2xl mx-auto flex items-center gap-2">
+      <button onclick="addToCartCurrent()" class="flex-1 border-2 border-[#0B1426] text-[#0B1426] py-2.5 rounded-full font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-cart-plus"></i>
+        <span>Ku Dar Gaadhiga</span>
+      </button>
+      <button onclick="buyNowDirect()" class="flex-1 bg-[#0B1426] hover:bg-slate-900 text-white py-2.5 rounded-full font-bold text-xs shadow-md transition">
+        Iibso Hadda
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 0: USER PROFILE ACCOUNT MODAL ================= -->
+  <div id="profileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-id-card text-amber-500 text-lg"></i>
+          <h3 class="text-base font-bold text-gray-800">Xogta Akoonkaaga</h3>
+        </div>
+        <button onclick="closeModal('profileModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <!-- User Card Info Header -->
+      <div class="bg-gradient-to-r from-[#0B1426] to-slate-800 text-white p-4 rounded-2xl flex items-center gap-3 shadow-md relative">
+        <div id="cardProfilePicContainer" class="w-14 h-14 rounded-full bg-slate-700 border-2 border-amber-400 flex items-center justify-center flex-shrink-0 text-amber-400 overflow-hidden">
+          <i class="fa-solid fa-user text-2xl"></i>
+        </div>
+        <div class="flex-1 overflow-hidden">
+          <h4 id="profUserName" class="text-sm font-bold truncate">Aan la aqoonsan</h4>
+          <p id="profUserEmail" class="text-[11px] text-gray-300 truncate">Aan la cayimin</p>
+          <span class="inline-block bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-bold px-2 py-0.5 rounded-md mt-1">online</span>
+        </div>
+        
+        <!-- EDIT BUTTON -->
+        <button onclick="openModal('editProfileModal')" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 text-amber-400 border border-amber-400/30 px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition">
+          <i class="fa-solid fa-pen-to-square"></i> Beddel
+        </button>
+      </div>
+
+      <!-- Points Inside Profile -->
+      <div onclick="openModal('pointsModal'); closeModal('profileModal');" class="bg-amber-50 hover:bg-amber-100/80 cursor-pointer border border-amber-200 p-3 rounded-xl flex items-center justify-between transition">
+        <div>
+          <span class="text-[11px] text-amber-800 font-bold block">Dhibcahaaga (Loyalty Points)</span>
+          <p class="text-[10px] text-amber-700">Dhibcaha aad heysato xilligan</p>
+        </div>
+        <div class="text-right">
+          <span id="profUserPoints" class="text-2xl font-black text-amber-600">0.0</span>
+          <span class="text-[10px] text-amber-700 font-bold block">Points</span>
+        </div>
+      </div>
+
+      <!-- Account Actions -->
+      <div class="space-y-2 border-t pt-2">
+        <button onclick="openModal('notificationModal'); closeModal('profileModal');" class="w-full text-left bg-gray-50 hover:bg-gray-100 p-2.5 rounded-xl border text-xs font-bold text-gray-700 flex items-center justify-between">
+          <span><i class="fa-solid fa-box text-blue-600 mr-2"></i> Taariikhda OTP-ga</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </button>
+
+        <button onclick="openModal('supportModal'); closeModal('profileModal');" class="w-full text-left bg-gray-50 hover:bg-gray-100 p-2.5 rounded-xl border text-xs font-bold text-gray-700 flex items-center justify-between">
+          <span><i class="fa-solid fa-headset text-cyan-600 mr-2"></i> Taageerada Macaamiisha</span>
+          <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </button>
+      </div>
+
+      <!-- LOG OUT BUTTON -->
+      <button onclick="handleLogout()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold py-3 rounded-xl transition text-xs flex items-center justify-center gap-2">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Ka Bixid (Log Out)</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: EDIT PROFILE ================= -->
+  <div id="editProfileModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl relative space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-user-gear text-amber-500 text-lg"></i>
+          <h3 class="text-base font-bold text-gray-800">Beddel Sawirka & Magaca</h3>
+        </div>
+        <button onclick="closeModal('editProfileModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <form onsubmit="saveUserProfile(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-[10px] text-gray-500 font-semibold mb-1">Soo geli Sawirka Profile-ka (File)</label>
+          <input type="file" id="editPicFileInput" accept="image/*" class="w-full border rounded-xl p-2 text-xs outline-none focus:border-[#0B1426] bg-gray-50 file:mr-3 file:py-1 file:px-2 flex items-center file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#0B1426] file:text-white hover:file:bg-slate-800 cursor-pointer">
+        </div>
+        <div>
+          <label class="block text-[10px] text-gray-500 font-semibold mb-1">Magaca Cusub</label>
+          <input type="text" id="editNameInput" required placeholder="Magacaaga cusub..." class="w-full border rounded-xl p-2.5 text-xs outline-none focus:border-[#0B1426]">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeModal('editProfileModal')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition text-xs">
+            Kanoqo
+          </button>
+          <button type="submit" class="flex-1 bg-[#0B1426] hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl transition text-xs shadow">
+            Kaydi 
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 1: CHECKOUT ================= -->
+  <div id="checkoutModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Dhamaystir Iibsiga</h3>
+          <p class="text-[11px] text-gray-500">Dooro qaabka lacag bixinta iyo goobta</p>
+        </div>
+        <button onclick="closeModal('checkoutModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <form class="space-y-4 mt-4" onsubmit="handlePaymentSubmit(event)">
+        
+        <!-- Payment Category Buttons (Tabs) -->
+        <div>
+          <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Dooro Qaabka Lacag Bixinta</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="tabMobileBtn" onclick="switchPaymentType('mobile')" class="py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 bg-[#0B1426] text-white border-[#0B1426] transition">
+              <i class="fa-solid fa-mobile-screen-button"></i> Mobile Money
+            </button>
+            <button type="button" id="tabBankBtn" onclick="switchPaymentType('bank')" class="py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 bg-slate-50 text-gray-700 border-gray-200 hover:bg-gray-100 transition">
+              <i class="fa-solid fa-credit-card"></i> Kaarka Bangiga
+            </button>
+          </div>
+        </div>
+
+        <!-- 1. MOBILE MONEY SECTION -->
+        <div id="mobilePaymentSection" class="space-y-3 bg-slate-50 p-3 rounded-xl border">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Dooro Mobile Money</label>
+            <select id="mobileServiceSelect" class="w-full border rounded-xl p-2.5 text-xs bg-white outline-none focus:border-[#0B1426] font-semibold">
+              <option value="EVC Plus" selected>EVC Plus</option>
+              <option value="ZAAD">ZAAD Service</option>
+              <option value="Sahal">Sahal Service</option>
+              <option value="E-Dahab">E-Dahab</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Nambarka Mobilka</label>
+            <input type="tel" id="mobileNumberInput" placeholder="Tusaale: 61XXXXXXX" class="w-full border rounded-xl p-2.5 text-xs bg-white outline-none focus:border-[#0B1426]">
+          </div>
+        </div>
+
+        <!-- 2. BANK CARD SECTION -->
+        <div id="bankPaymentSection" class="hidden space-y-3 bg-slate-50 p-3 rounded-xl border">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Dooro Bangiga</label>
+            <select id="bankSelect" class="w-full border rounded-xl p-2.5 text-xs bg-white outline-none focus:border-[#0B1426] font-semibold">
+              <option value="IBS Bank" selected>IBS Bank</option>
+              <option value="Premier Bank">Premier Bank</option>
+              <option value="Salam Somali Bank">Salam Somali Bank</option>
+              <option value="Dahabshiil Bank">Dahabshiil Bank</option>
+              <option value="MyBank">MyBank</option>
+              <option value="Amal Bank">Amal Bank</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Nambarka Kaarka (Card Number)</label>
+            <div class="relative">
+              <input type="text" id="cardNumberInput" placeholder="4532 XXXX XXXX 8900" maxlength="19" class="w-full border rounded-xl p-2.5 pl-9 text-xs bg-white outline-none focus:border-[#0B1426]">
+              <i class="fa-solid fa-credit-card absolute left-3 top-3 text-gray-400 text-xs"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-700 mb-1">Waqtiga (MM/YY)</label>
+              <input type="text" id="cardExpiryInput" placeholder="12/28" maxlength="5" class="w-full border rounded-xl p-2.5 text-xs bg-white outline-none focus:border-[#0B1426] text-center">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-700 mb-1">CVC / CVV</label>
+              <input type="password" id="cardCvcInput" placeholder="123" maxlength="4" class="w-full border rounded-xl p-2.5 text-xs bg-white outline-none focus:border-[#0B1426] text-center">
+            </div>
+          </div>
+        </div>
+
+        <!-- LOCATION INPUT SECTION -->
+        <div class="space-y-2 border-t pt-3">
+          <label class="block text-xs font-bold text-gray-700 uppercase flex items-center gap-1">
+            <i class="fa-solid fa-location-dot text-amber-500"></i> Goobta Loo Keenayo (Delivery Address)
+          </label>
+          
+          <div>
+            <input type="text" id="districtInput" required placeholder="Degmada (Tus: Hodan, Wadajir, Yaaqshiid...)" class="w-full border rounded-xl p-2.5 text-xs outline-none focus:border-[#0B1426]">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="neighborhoodInput" required placeholder="Xaafadda (Tus: Taleex, Siinaay...)" class="w-full border rounded-xl p-2.5 text-xs outline-none focus:border-[#0B1426]">
+            <input type="text" id="landmarkInput" required placeholder="Goobta ugu caansan (Landmark)" class="w-full border rounded-xl p-2.5 text-xs outline-none focus:border-[#0B1426]">
+          </div>
+        </div>
+
+        <!-- TOTAL SUMMARY -->
+        <div class="bg-slate-50 p-3 rounded-xl border flex justify-between items-center">
+          <span class="text-xs font-semibold text-gray-600">Wadarta Bixinayo:</span>
+          <span id="checkoutPrice" class="text-lg font-extrabold text-[#0B1426]">$0.00</span>
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-check"></i>
+          <span>Xaqiiji Iibsiga</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 2: NOTIFICATIONS ================= -->
+  <div id="notificationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl relative max-h-[85vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-bell text-emerald-500"></i>
+          <h3 class="text-base font-bold text-gray-800">Xaqiijinta & Koodhka OTP</h3>
+        </div>
+        <button onclick="closeModal('notificationModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <div id="notificationsContainer" class="mt-3 overflow-y-auto space-y-3 flex-1 pr-1">
+        <!-- Dynamic Notifications Injected Here -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 3: CART ================= -->
+  <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl relative max-h-[80vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-base font-bold text-gray-800">Gaadhigaaga Iibsiga</h3>
+        <button onclick="closeModal('cartModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      
+      <div id="cartItemsContainer" class="mt-3 overflow-y-auto space-y-2 flex-1">
+        <!-- Cart Items Injected Here -->
+      </div>
+
+      <div class="border-t pt-3 mt-2 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="font-bold text-sm">Wadarta: <span id="cartTotalPrice" class="text-blue-600">$0.00</span></span>
+          <button onclick="openCheckoutModal()" class="bg-[#0B1426] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-900">Dhamaystir Iibsiga</button>
+        </div>
+        <!-- 100 Points Reward Redeem Banner -->
+        <div id="redeemGiftBanner" class="hidden bg-amber-50 border border-amber-300 p-2.5 rounded-xl text-center">
+          <p class="text-xs font-bold text-amber-800"><i class="fa-solid fa-gift text-amber-500 mr-1"></i> Waxaad leedahay 100+ Points!</p>
+          <button onclick="claimFreeGift()" class="mt-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] px-3 py-1 rounded-lg transition shadow-sm">
+            Ku hel Alaab Bilaash ah (Claim Gift)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 4: POINTS INFO ================= -->
+  <div id="pointsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl relative space-y-3">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-coins text-amber-500 text-lg"></i>
+          <h3 class="text-base font-bold text-gray-800">Dhibcahaaga (Points)</h3>
+        </div>
+        <button onclick="closeModal('pointsModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+        <span class="text-xs text-amber-700 block">Wadarta Dhibcaha Aad Heysato Hadda:</span>
+        <span id="pointsModalTotal" class="text-4xl font-black text-amber-600">0.0</span>
+        <span class="text-xs text-amber-700 font-bold block mt-1">Points</span>
+      </div>
+
+      <div class="bg-blue-50 text-blue-800 p-3 rounded-xl text-xs text-center">
+        💡 Marka ay dhibcahaagu gaaraan <strong>100 Points</strong>, waxaad heli kartaa alaab bilaash ah marka aad iibsanayso!
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL 5: CUSTOMER SUPPORT (CHAT & CALL) ================= -->
+  <div id="supportModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-4 shadow-2xl relative flex flex-col h-[80vh]">
+      <!-- Support Header -->
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-white text-sm font-bold">
+            <i class="fa-solid fa-headset"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-800">Taageerada Veyzo Store</h3>
+            <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Diyaar Xilligan
+            </span>
+          </div>
+        </div>
+        <button onclick="closeModal('supportModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <!-- Quick Action: Call Support -->
+      <div class="my-3 bg-cyan-50 border border-cyan-200 p-2.5 rounded-xl flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-phone-volume text-cyan-600 text-base"></i>
+          <span class="text-xs font-bold text-gray-700">Na soo wac toos:</span>
+        </div>
+        <a href="tel:+252610000000" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm transition">
+          <i class="fa-solid fa-phone"></i> Wac Hadda
+        </a>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div id="chatMessages" class="flex-1 overflow-y-auto space-y-2.5 p-2 bg-slate-50 rounded-xl border text-xs">
+        <div class="bg-white p-2.5 rounded-xl rounded-tl-none max-w-[85%] border shadow-sm space-y-1">
+          <span class="font-bold text-cyan-600 text-[10px]">Veyzo Support</span>
+          <p class="text-gray-700">Kusoo dhawoow Veyzo Store! Maxaan maanta kugu caawinaa?</p>
+        </div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <form onsubmit="sendChatMessage(event)" class="mt-3 flex gap-2">
+        <input type="text" id="chatInput" required placeholder="Qor fariintaada halkan..." class="flex-1 border rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500">
+        <button type="submit" class="bg-[#0B1426] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-900 transition flex items-center justify-center">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= SUPABASE SDK & CONFIG SCRIPTS ================= -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // Initial Dynamic Empty Store Data
+    let productsData = [];
+
+    // User Profile Object (Loads automatically from registration data)
+    let currentUser = {
+      name: "",
+      email: "",
+      profilePic: ""
+    };
+
+    function loadUserProfile() {
+      const savedUser = localStorage.getItem('veyzo_user_profile');
+      const registeredUser = localStorage.getItem('user') || localStorage.getItem('currentUser') || localStorage.getItem('userData');
+      
+      if (savedUser) {
+        try { currentUser = JSON.parse(savedUser); } catch (e) {}
+      } else if (registeredUser) {
+        try {
+          const parsed = JSON.parse(registeredUser);
+          currentUser.name = parsed.name || parsed.username || parsed.fullname || parsed.fullName || "Macmiil";
+          currentUser.email = parsed.email || parsed.phone || "Aan la cayimin";
+          currentUser.profilePic = parsed.profilePic || parsed.avatar || "";
+          localStorage.setItem('veyzo_user_profile', JSON.stringify(currentUser));
+        } catch (e) {}
+      }
+      updateUserProfileUI();
+    }
+
+    function updateUserProfileUI() {
+      document.getElementById('profUserName').innerText = currentUser.name || "Macmiil Soo Diwaangashaday";
+      document.getElementById('profUserEmail').innerText = currentUser.email || "Aan la cayimin";
+      
+      const container = document.getElementById('cardProfilePicContainer');
+      if (currentUser.profilePic && currentUser.profilePic.trim() !== '') {
+        container.innerHTML = `<img src="${currentUser.profilePic}" class="w-full h-full object-cover">`;
+      } else {
+        container.innerHTML = `<i class="fa-solid fa-user text-2xl"></i>`;
+      }
+
+      document.getElementById('editNameInput').value = currentUser.name || '';
+      document.getElementById('editPicFileInput').value = '';
+    }
+
+    function saveUserProfile(e) {
+      e.preventDefault();
+      const newName = document.getElementById('editNameInput').value.trim();
+      const fileInput = document.getElementById('editPicFileInput');
+
+      if (newName) currentUser.name = newName;
+
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentUser.profilePic = e.target.result;
+          localStorage.setItem('veyzo_user_profile', JSON.stringify(currentUser));
+          updateUserProfileUI();
+          closeModal('editProfileModal');
+          alert("Magacaaga iyo sawirkaaga profile-ka waa la kaydiyay!");
+        };
+        reader.readAsDataURL(file);
+      } else {
+        localStorage.setItem('veyzo_user_profile', JSON.stringify(currentUser));
+        updateUserProfileUI();
+        closeModal('editProfileModal');
+        alert("Magacaaga cusub waa la kaydiyay!");
+      }
+    }
+
+    // Load Seller Products (Si toos ah uga soo akhrinaysa LocalStorage ama Supabase Real-Time)
+    async function loadSellerProducts() {
+      // 1. Marka hore ka eeg localStorage (haddii uu iibiyuhu ku daray LocalStorage)
+      const storedProducts = localStorage.getItem('veyzo_products');
+      if (storedProducts) {
+        try { productsData = JSON.parse(storedProducts); } catch (e) { productsData = []; }
+      } else {
+        productsData = [];
+      }
+
+      // 2. Haddii window.supabaseClient uu jiro, ka soo jiid miiska 'products' ee Supabase si ay u noqoto Real-Time
+      if (window.supabaseClient) {
+        try {
+          const { data, error } = await window.supabaseClient.from('products').select('*');
+          if (!error && data && data.length > 0) {
+            productsData = data.map(p => ({
+              id: p.id,
+              title: p.title,
+              price: p.price,
+              category: p.category,
+              image: p.image_url || p.image,
+              desc: p.description || p.desc || '',
+              store: p.store_name || 'Veyzo Store',
+              stock: p.stock_quantity || p.stock || 10
+            }));
+          }
+        } catch (err) {
+          console.error("Supabase load products error:", err);
+        }
+      }
+    }
+
+    // State Variables
+    let currentProduct = null;
+    let currentQty = 1;
+    let cart = [];
+    let activeCategory = 'all';
+    let customerOrders = [];
+    let userPoints = 0.0;
+    let activePaymentType = 'mobile';
+
+    function calculateEarnedPoints(totalAmount) {
+      if (totalAmount >= 100) return 50;
+      if (totalAmount >= 50) return 20;
+      if (totalAmount >= 20) return 10;
+      if (totalAmount >= 5) return 0.2;
+      return 0;
+    }
+
+    function handleLogout() {
+      const displayName = currentUser.name || "Macmiil";
+      if (confirm(`Ma hubtaa inaad ka baxayso account-ka (${displayName})?`)) {
+        localStorage.removeItem('veyzo_user_profile');
+        localStorage.removeItem('user');
+        localStorage.removeItem('currentUser');
+        cart = [];
+        customerOrders = [];
+        userPoints = 0.0;
+        window.location.href = '/register/gelid.html';
+      }
+    }
+
+    function renderProducts(items) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+
+      if(!items || items.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-gray-500 font-semibold text-xs">
+            Wax alaab ah kuma jirto dukaanka xilligan ama waa la soo gelinayaa...
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach(p => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between border border-gray-100 p-2 relative";
+        
+        card.innerHTML = `
+          <div onclick="openDetail('${p.id}')" class="cursor-pointer">
+            <div class="relative bg-gray-50 aspect-square rounded-lg overflow-hidden mb-2">
+              <img src="${p.image || p.image_url || 'https://via.placeholder.com/400'}" class="w-full h-full object-cover" alt="${p.title}">
+              <span class="absolute top-1 left-1 bg-[#0B1426] text-amber-400 text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm border border-amber-400/20">
+                <i class="fa-solid fa-shop text-[7px] mr-0.5"></i> ${p.store || 'Veyzo Store'}
+              </span>
+            </div>
+            <h3 class="text-xs font-bold text-gray-800 line-clamp-1">${p.title}</h3>
+            <p class="text-[10px] text-gray-500 line-clamp-1 mt-0.5">${p.desc || p.description || ''}</p>
+            <p class="text-[11px] font-extrabold text-[#0B1426] mt-1">$${parseFloat(p.price).toFixed(2)}</p>
+          </div>
+          <button onclick="quickAddToCart('${p.id}')" class="w-full mt-2 bg-[#0B1426] text-white text-[11px] font-bold py-1.5 rounded-lg hover:bg-slate-900 transition flex items-center justify-center gap-1">
+            <i class="fa-solid fa-cart-plus text-amber-400"></i> Ku Dar Gaadhiga
+          </button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterCategory(cat, btn) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(b => {
+        b.className = "cat-pill bg-white border border-gray-200 text-gray-700 px-3.5 py-1.5 rounded-full flex-shrink-0 hover:bg-gray-100 transition-colors";
+      });
+      btn.className = "cat-pill bg-[#0B1426] text-white px-3.5 py-1.5 rounded-full font-medium flex-shrink-0 transition-colors";
+      filterProducts();
+    }
+
+    async function filterProducts() {
+      await loadSellerProducts();
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = productsData.filter(p => {
+        const matchesCat = activeCategory === 'all' || p.category === activeCategory;
+        const matchesQuery = (p.title && p.title.toLowerCase().includes(query)) || ((p.desc || p.description) && (p.desc || p.description).toLowerCase().includes(query)) || (p.category && p.category.toLowerCase().includes(query));
+        return matchesCat && matchesQuery;
+      });
+      renderProducts(filtered);
+    }
+
+    async function openDetail(id) {
+      await loadSellerProducts();
+      currentProduct = productsData.find(p => String(p.id) === String(id));
+      if(!currentProduct) return;
+
+      currentQty = 1;
+      document.getElementById('detailQty').innerText = currentQty;
+
+      document.getElementById('detailImage').src = currentProduct.image || currentProduct.image_url || 'https://via.placeholder.com/400';
+      document.getElementById('detailTitle').innerText = currentProduct.title;
+      document.getElementById('detailDesc').innerText = currentProduct.desc || currentProduct.description || 'Faahfaahin kama bixin iibiyuhu.';
+      document.getElementById('detailCategory').innerText = currentProduct.category || 'General';
+      document.getElementById('detailStore').innerHTML = `<i class="fa-solid fa-store mr-1 text-amber-600"></i> Dukaanka: ${currentProduct.store || 'Veyzo Store'}`;
+      document.getElementById('detailPrice').innerText = '$' + parseFloat(currentProduct.price).toFixed(2);
+      document.getElementById('detailStock').innerText = (currentProduct.stock || currentProduct.stock_quantity || 10) + ' xabbo';
+
+      document.getElementById('catalogView').classList.add('hidden');
+      document.getElementById('detailView').classList.remove('hidden');
+      document.getElementById('bottomBar').classList.remove('hidden');
+      document.getElementById('backBtn').classList.remove('hidden');
+    }
+
+    function showCatalog() {
+      document.getElementById('catalogView').classList.remove('hidden');
+      document.getElementById('detailView').classList.add('hidden');
+      document.getElementById('bottomBar').classList.add('hidden');
+      document.getElementById('backBtn').classList.add('hidden');
+      filterProducts();
+    }
+
+    function incrementDetailQty() {
+      currentQty++;
+      document.getElementById('detailQty').innerText = currentQty;
+    }
+
+    function decrementDetailQty() {
+      if (currentQty > 1) {
+        currentQty--;
+        document.getElementById('detailQty').innerText = currentQty;
+      }
+    }
+
+    async function quickAddToCart(id) {
+      await loadSellerProducts();
+      const prod = productsData.find(p => String(p.id) === String(id));
+      if(prod) {
+        const existingItem = cart.find(item => String(item.id) === String(prod.id) && item.id !== 999);
+        if (existingItem) {
+          existingItem.qty = (existingItem.qty || 1) + 1;
+        } else {
+          cart.push({ ...prod, qty: 1 });
+        }
+        updateCartUI();
+        openModal('cartModal');
+      }
+    }
+
+    function addToCartCurrent() {
+      if(!currentProduct) return;
+      const existingItem = cart.find(item => String(item.id) === String(currentProduct.id) && item.id !== 999);
+      if (existingItem) {
+        existingItem.qty = (existingItem.qty || 1) + currentQty;
+      } else {
+        cart.push({ ...currentProduct, qty: currentQty });
+      }
+      updateCartUI();
+      openModal('cartModal');
+    }
+
+    function buyNowDirect() {
+      if(!currentProduct) return;
+      addToCartCurrent();
+    }
+
+    function incrementCartQty(index) {
+      cart[index].qty = (cart[index].qty || 1) + 1;
+      updateCartUI();
+    }
+
+    function decrementCartQty(index) {
+      if (cart[index].qty > 1) {
+        cart[index].qty--;
+        updateCartUI();
+      } else {
+        removeFromCart(index);
+      }
+    }
+
+    function updateCartUI() {
+      const badge = document.getElementById('cartBadge');
+      let totalItemsCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+      
+      if(cart.length > 0) {
+        badge.innerText = totalItemsCount;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+      } else {
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+      }
+
+      const container = document.getElementById('cartItemsContainer');
+      container.innerHTML = '';
+      let total = 0;
+
+      if(cart.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Gaadhigaagu waa eber.</p>`;
+      } else {
+        cart.forEach((item, index) => {
+          let itemQty = item.qty || 1;
+          let itemTotal = parseFloat(item.price) * itemQty;
+          total += itemTotal;
+
+          container.innerHTML += `
+            <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl text-xs border gap-2">
+              <div class="flex-1">
+                <strong class="block text-gray-800 line-clamp-1">${item.title}</strong>
+                <span class="text-[10px] text-amber-600 font-bold"><i class="fa-solid fa-shop text-[8px]"></i> ${item.store || 'Veyzo Store'}</span>
+                <span class="text-[11px] font-extrabold text-emerald-600 block mt-0.5">$${itemTotal.toFixed(2)}</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg p-1">
+                <button onclick="decrementCartQty(${index})" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 font-bold text-gray-700 flex items-center justify-center text-[10px]">
+                  <i class="fa-solid fa-minus"></i>
+                </button>
+                <span class="w-5 text-center font-bold text-xs">${itemQty}</span>
+                <button onclick="incrementCartQty(${index})" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 font-bold text-gray-700 flex items-center justify-center text-[10px]">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+
+              <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById('cartTotalPrice').innerText = '$' + total.toFixed(2);
+
+      const giftBanner = document.getElementById('redeemGiftBanner');
+      if (userPoints >= 100) {
+        giftBanner.classList.remove('hidden');
+      } else {
+        giftBanner.classList.add('hidden');
+      }
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function claimFreeGift() {
+      if (userPoints < 100) return;
+      userPoints -= 100;
+      updatePointsUI();
+      
+      cart.push({
+        id: 999,
+        title: "🎁 Hadiyad Bilaash ah (Free Gift)",
+        store: "Veyzo Official",
+        price: 0.00,
+        qty: 1
+      });
+      
+      updateCartUI();
+      alert("Hambalyo! Waxaad 100 Points u bedelatay Hadiyad Bilaash ah.");
+    }
+
+    function switchPaymentType(type) {
+      activePaymentType = type;
+      const mobileBtn = document.getElementById('tabMobileBtn');
+      const bankBtn = document.getElementById('tabBankBtn');
+      const mobileSection = document.getElementById('mobilePaymentSection');
+      const bankSection = document.getElementById('bankPaymentSection');
+
+      if (type === 'mobile') {
+        mobileBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 bg-[#0B1426] text-white border-[#0B1426] transition";
+        bankBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 bg-slate-50 text-gray-700 border-gray-200 hover:bg-gray-100 transition";
+        mobileSection.classList.remove('hidden');
+        bankSection.classList.add('hidden');
+      } else {
+        bankBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 bg-[#0B1426] text-white border-[#0B1426] transition";
+        mobileBtn.className = "py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 bg-slate-50 text-gray-700 border-gray-200 hover:bg-gray-100 transition";
+        bankSection.classList.remove('hidden');
+        mobileSection.classList.add('hidden');
+      }
+    }
+
+    function openCheckoutModal() {
+      if(cart.length === 0) return alert('Gaadhigaagu waa eber! Fadlan alaab ku dar marka hore.');
+      let total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * (item.qty || 1)), 0);
+
+      document.getElementById('checkoutPrice').innerText = '$' + total.toFixed(2);
+
+      switchPaymentType('mobile');
+      closeModal('cartModal');
+      openModal('checkoutModal');
+    }
+
+    function handlePaymentSubmit(e) {
+      e.preventDefault();
+
+      let price = cart.reduce((sum, item) => sum + (parseFloat(item.price) * (item.qty || 1)), 0);
+      let itemTitles = cart.map(i => `${i.title} (x${i.qty || 1}) [${i.store || 'Veyzo'}]`).join(', ');
+
+      let paymentDetails = "";
+
+      if (activePaymentType === 'mobile') {
+        const service = document.getElementById('mobileServiceSelect').value;
+        const phone = document.getElementById('mobileNumberInput').value;
+        if (!phone) return alert("Fadlan qor nambarka mobilka!");
+        paymentDetails = `${service} (${phone})`;
+      } else {
+        const bank = document.getElementById('bankSelect').value;
+        const cardNum = document.getElementById('cardNumberInput').value;
+        const expiry = document.getElementById('cardExpiryInput').value;
+        const cvc = document.getElementById('cardCvcInput').value;
+
+        if (!cardNum || !expiry || !cvc) {
+          return alert("Fadlan dhamaystir dhammaan xogta kaarka bangiga!");
+        }
+        const maskedCard = "**** **** **** " + cardNum.slice(-4);
+        paymentDetails = `${bank} [${maskedCard}]`;
+      }
+
+      const district = document.getElementById('districtInput').value;
+      const neighborhood = document.getElementById('neighborhoodInput').value;
+      const landmark = document.getElementById('landmarkInput').value;
+
+      const fullLocation = `Degmada: ${district}, Xaafadda: ${neighborhood}, Goobta: ${landmark}`;
+
+      const transactionId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+      const otpCode = Math.floor(1000 + Math.random() * 9000);
+
+      const earnedPoints = calculateEarnedPoints(price);
+      userPoints += earnedPoints;
+      updatePointsUI();
+
+      let totalCount = cart.reduce((sum, i) => sum + (i.qty || 1), 0);
+
+      customerOrders.unshift({
+        id: Date.now(),
+        txId: transactionId,
+        items: itemTitles,
+        count: totalCount,
+        price: price.toFixed(2),
+        paymentMethod: paymentDetails,
+        location: fullLocation,
+        otp: otpCode,
+        earnedPoints: earnedPoints,
+        status: "Waad bixisay"
+      });
+
+      cart = [];
+      updateCartUI();
+      renderNotifications();
+
+      const notifBadge = document.getElementById('notifBadge');
+      notifBadge.innerText = customerOrders.length;
+      notifBadge.classList.remove('hidden');
+      notifBadge.classList.add('flex');
+
+      closeModal('checkoutModal');
+      openModal('notificationModal');
+    }
+
+    function updatePointsUI() {
+      document.getElementById('pointsModalTotal').innerText = userPoints.toFixed(1);
+      document.getElementById('profUserPoints').innerText = userPoints.toFixed(1);
+    }
+
+    function renderNotifications() {
+      const container = document.getElementById('notificationsContainer');
+      container.innerHTML = '';
+
+      if(customerOrders.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">Ma jiraan wax OTP ah ama ogeysiiso.</p>`;
+        return;
+      }
+
+      customerOrders.forEach(n => {
+        container.innerHTML += `
+          <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 shadow-md space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Odarku Waa Xaqiijisan Yahay
+              </span>
+              <span class="text-[10px] text-gray-400">${n.txId}</span>
+            </div>
+
+            <div class="space-y-1">
+              <h4 class="text-xs font-bold text-white">${n.items}</h4>
+              <p class="text-[11px] text-gray-400">Wadarta Qiimaha: <strong class="text-emerald-400">$${n.price}</strong> (${n.count} xabbo oo wadarta guud ah)</p>
+              <p class="text-[10px] text-amber-400 font-semibold"><i class="fa-solid fa-coins mr-1"></i> Dhibcaha aad heshay: +${n.earnedPoints} Points</p>
+              <p class="text-[10px] text-gray-400"><i class="fa-solid fa-credit-card text-amber-400 mr-1"></i> Nidaamka Bixinta: ${n.paymentMethod}</p>
+              <p class="text-[10px] text-gray-300 bg-slate-800 p-2 rounded-lg border border-slate-700/50 mt-1 leading-relaxed">
+                <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i> <strong>Goobta:</strong> ${n.location}
+              </p>
+            </div>
+
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 text-center space-y-1">
+              <span class="text-[10px] font-bold uppercase text-amber-400 tracking-wider">Koodhka Xaqiijinta (OTP Code)</span>
+              <div class="text-2xl font-black text-amber-400 tracking-widest bg-slate-900 py-1.5 rounded-lg border border-amber-500/30">
+                ${n.otp}
+              </div>
+              <p class="text-[10px] text-gray-400 italic mt-1 leading-normal">
+                💡 Sii koodhkan darawalka alaabta kukeeni doona
+              </p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function sendChatMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatContainer = document.getElementById('chatMessages');
+
+      chatContainer.innerHTML += `
+        <div class="bg-cyan-600 text-white p-2.5 rounded-xl rounded-tr-none max-w-[85%] ml-auto shadow-sm">
+          <p>${msg}</p>
+        </div>
+      `;
+
+      input.value = '';
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      setTimeout(() => {
+        chatContainer.innerHTML += `
+          <div class="bg-white p-2.5 rounded-xl rounded-tl-none max-w-[85%] border shadow-sm space-y-1">
+            <span class="font-bold text-cyan-600 text-[10px]">Veyzo Support</span>
+            <p class="text-gray-700">Waad mahadsan tahay! Fariintaada waan helnay, xubnaha taageerada macaamiisha ayaa si degdeg ah kaaga soo jawaabi doona.</p>
+          </div>
+        `;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 1000);
+    }
+
+    function openModal(id) { 
+      if(id === 'notificationModal') renderNotifications();
+      document.getElementById(id).classList.remove('hidden'); 
+    }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // Init App & Sync Data on Load
+    async function initApp() {
+      loadUserProfile();
+      await filterProducts();
+      updatePointsUI();
+    }
+
+    initApp();
+
+    // REAL-TIME SYNC: Markasta oo iibiyuhu wax ka beddelo localStorage ama tab kale, si toos ah ayay u soo caddaynaysaa
+    window.addEventListener('storage', async (e) => {
+      if (e.key === 'veyzo_products') {
+        await filterProducts();
+      }
+      if (e.key === 'veyzo_user_profile' || e.key === 'user' || e.key === 'currentUser') {
+        loadUserProfile();
+      }
+    });
+
+    // Sidoo kale mar kasta oo boggan diiradda (focus) la siiyo ama la soo laabto, cusbooneysii alaabta
+    window.addEventListener('focus', async () => {
+      await filterProducts();
+    });
+  </script>
+</body>
+</html>

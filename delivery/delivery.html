@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="so" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver App - Direct Delivery Verification</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              900: '#0B132B',
+              800: '#1C2541',
+              700: '#3A506B',
+            },
+            gold: {
+              400: '#F4C430',
+              500: '#D4AF37',
+              600: '#AA820A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0A0F1D] text-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
+
+  <!-- MAIN DRIVER CARD CONTAINER -->
+  <div class="w-full max-w-md">
+
+    <!-- 1. EMPTY STATE (Marka uusan jirin dalab cusub) -->
+    <div id="noOrderCard" class="bg-navy-900 rounded-3xl border border-navy-700/60 shadow-2xl p-8 text-center space-y-4">
+      <div class="w-16 h-16 rounded-2xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-500 mx-auto text-2xl animate-bounce">
+        <i class="fa-solid fa-motorcycle"></i>
+      </div>
+      <div>
+        <h2 class="text-xl font-black text-white">Ma jiro dalab hadda socda</h2>
+        <p class="text-xs text-gray-400 mt-1">Laga bilaabo hadda, lasoco dalabka cusub oo kugu soo dhaca...</p>
+      </div>
+      <div class="pt-2 flex justify-center">
+        <span class="inline-flex items-center gap-2 bg-navy-800 text-gold-500 text-xs px-4 py-2 rounded-full border border-navy-700 font-bold">
+          <span class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span> Waxaad ku jirtaa Online
+        </span>
+      </div>
+    </div>
+
+    <!-- 2. ACTIVE ORDER CARD (Bilowga waa qarsoon yahay "hidden") -->
+    <div id="activeOrderCard" class="bg-navy-900 rounded-3xl border border-navy-700/60 shadow-2xl overflow-hidden relative hidden">
+      
+      <!-- Card Header -->
+      <div class="bg-gradient-to-r from-navy-800 to-navy-900 border-b border-navy-700/60 p-5 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-500">
+            <i class="fa-solid fa-motorcycle text-lg"></i>
+          </div>
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-gold-500">Geynta ayaa socota</span>
+            <h2 id="orderId" class="text-lg font-black text-white tracking-tight">--</h2>
+          </div>
+        </div>
+        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active
+        </span>
+      </div>
+
+      <!-- Order Details -->
+      <div class="p-5 space-y-5">
+        
+        <!-- Pickup Store -->
+        <div class="bg-navy-800/60 rounded-2xl p-4 border border-navy-700/50 flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center flex-shrink-0 mt-0.5 border border-gold-500/20">
+              <i class="fa-solid fa-store text-sm"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-extrabold text-gold-500 uppercase tracking-wider block">1. Laga soo qaaday</span>
+              <h3 id="storeName" class="font-bold text-white text-base mt-0.5">--</h3>
+              <p class="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                <i class="fa-solid fa-map-pin text-gold-500"></i> <span id="storeAddress">--</span>
+              </p>
+            </div>
+          </div>
+          <a id="storePhone" href="#" class="w-10 h-10 rounded-xl bg-gold-500 text-navy-900 flex items-center justify-center hover:bg-gold-400 transition shadow-lg flex-shrink-0">
+            <i class="fa-solid fa-phone text-sm font-bold"></i>
+          </a>
+        </div>
+
+        <div class="flex justify-center -my-2">
+          <div class="w-8 h-8 rounded-full bg-navy-800 border border-navy-700 text-gold-500 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-arrow-down-long"></i>
+          </div>
+        </div>
+
+        <!-- Drop-off Customer -->
+        <div class="bg-navy-800/60 rounded-2xl p-4 border border-navy-700/50 flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-500/20">
+              <i class="fa-solid fa-user-gear text-sm"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider block">2. Loo geynayaa</span>
+              <h3 id="customerName" class="font-bold text-white text-base mt-0.5">--</h3>
+              <p class="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                <i class="fa-solid fa-location-crosshairs text-emerald-400"></i> <span id="customerAddress">--</span>
+              </p>
+            </div>
+          </div>
+          <a id="customerPhone" href="#" class="w-10 h-10 rounded-xl bg-emerald-500 text-navy-900 flex items-center justify-center hover:bg-emerald-400 transition shadow-lg flex-shrink-0">
+            <i class="fa-solid fa-phone text-sm font-bold"></i>
+          </a>
+        </div>
+
+        <!-- Button to open OTP Modal -->
+        <div class="pt-2">
+          <button onclick="openOtpModal()" class="w-full bg-gold-500 hover:bg-gold-400 text-navy-900 font-extrabold py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-sm tracking-wide">
+            <i class="fa-solid fa-key text-base"></i>
+            <span>Geeyay - Geli OTP Code-ka</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3. OTP INPUT MODAL FOR DRIVER -->
+  <div id="otpModal" class="fixed inset-0 bg-navy-900/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-navy-800 border border-navy-700 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center space-y-5">
+      
+      <button onclick="closeOtpModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/30 text-gold-500 flex items-center justify-center mx-auto text-2xl shadow-inner">
+        <i class="fa-solid fa-shield-check"></i>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-black text-white">Xaqiiji Geynta Alaabta</h3>
+        <p class="text-xs text-gray-400 mt-1">Weydii macaamiilka 4-digit OTP Code-ka mobilkiisa ugu soo dhacay si aad u dhameystirto.</p>
+      </div>
+
+      <!-- OTP Input Form -->
+      <form onsubmit="verifyCode(event)" class="space-y-5">
+        <div class="flex justify-center gap-3">
+          <input type="text" maxlength="1" class="otp-input w-12 h-14 bg-navy-900 border border-navy-700 rounded-xl text-center text-xl font-black text-gold-500 outline-none focus:border-gold-500 transition">
+          <input type="text" maxlength="1" class="otp-input w-12 h-14 bg-navy-900 border border-navy-700 rounded-xl text-center text-xl font-black text-gold-500 outline-none focus:border-gold-500 transition">
+          <input type="text" maxlength="1" class="otp-input w-12 h-14 bg-navy-900 border border-navy-700 rounded-xl text-center text-xl font-black text-gold-500 outline-none focus:border-gold-500 transition">
+          <input type="text" maxlength="1" class="otp-input w-12 h-14 bg-navy-900 border border-navy-700 rounded-xl text-center text-xl font-black text-gold-500 outline-none focus:border-gold-500 transition">
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-navy-900 font-extrabold py-3.5 rounded-2xl transition text-sm shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Xaqiiji oo Dhameystir</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Supabase Library & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+  <script>
+    let currentOrder = null;
+
+    // 1. Check Active Order safely with error handling
+    async function checkActiveOrder() {
+      try {
+        const db = window.supabaseClient || window.supabase;
+        if (db && typeof db.from === 'function') {
+          const { data, error } = await db.from('orders').select('*').eq('order_status', 'Pending').limit(1);
+          if (!error && data && data.length > 0) {
+            currentOrder = data[0];
+            renderOrder(currentOrder);
+            return;
+          }
+        }
+      } catch (error) {
+        // Silently handle connection or missing table errors without crashing
+      }
+      
+      currentOrder = null;
+      renderOrder(null);
+    }
+
+    // 2. UI RENDERER
+    function renderOrder(order) {
+      const noOrderCard = document.getElementById('noOrderCard');
+      const activeOrderCard = document.getElementById('activeOrderCard');
+
+      if (!order) {
+        noOrderCard.classList.remove('hidden');
+        activeOrderCard.classList.add('hidden');
+        return;
+      }
+
+      let safeOrderId = order.id ? String(order.id) : '00000000';
+      document.getElementById('orderId').innerText = `Order #${safeOrderId.slice(0, 8)}`;
+      
+      document.getElementById('storeName').innerText = order.store_name || 'Veyzo Store';
+      document.getElementById('storeAddress').innerText = order.store_address || 'Mogadishu';
+      document.getElementById('storePhone').href = `tel:${order.store_phone || '610000000'}`;
+
+      document.getElementById('customerName').innerText = order.customer_name || 'Macmiil';
+      document.getElementById('customerAddress').innerText = order.delivery_address || 'Muqdisho';
+      document.getElementById('customerPhone').href = `tel:${order.customer_phone || '610000000'}`;
+
+      noOrderCard.classList.add('hidden');
+      activeOrderCard.classList.remove('hidden');
+    }
+
+    // Polling every 3 seconds
+    setInterval(checkActiveOrder, 3000);
+    checkActiveOrder();
+
+    // Modal Operations
+    function openOtpModal() {
+      document.getElementById('otpModal').classList.remove('hidden');
+      const inputs = document.querySelectorAll('.otp-input');
+      if (inputs.length > 0) inputs[0].focus();
+    }
+
+    function closeOtpModal() {
+      document.getElementById('otpModal').classList.add('hidden');
+    }
+
+    // Auto focus next box logic
+    const inputs = document.querySelectorAll('.otp-input');
+    inputs.forEach((input, index) => {
+      input.addEventListener('keyup', (e) => {
+        if (e.key >= '0' && e.key <= '9') {
+          if (index < inputs.length - 1) inputs[index + 1].focus();
+        } else if (e.key === 'Backspace') {
+          if (index > 0) inputs[index - 1].focus();
+        }
+      });
+    });
+
+    // 4. VERIFY OTP
+    async function verifyCode(e) {
+      e.preventDefault();
+
+      let otpCode = "";
+      inputs.forEach(input => otpCode += input.value);
+
+      if (otpCode.length < 4) {
+        alert("Fadlan geli 4-digit OTP Code-ka oo dhamaystiran!");
+        return;
+      }
+
+      if (currentOrder && String(currentOrder.otp) === String(otpCode)) {
+        alert('✅ Dalabku si guul leh ayaa loo xaqiijiyay oo loo dhameystiray!');
+        
+        try {
+          const db = window.supabaseClient || window.supabase;
+          if (db && currentOrder.id) {
+            await db.from('orders').update({ order_status: 'Completed' }).eq('id', currentOrder.id);
+          }
+        } catch (err) {}
+
+        closeOtpModal();
+        inputs.forEach(input => input.value = '');
+        checkActiveOrder();
+      } else {
+        alert('❌ OTP Code-ku waa khalad ama sax ma aha!');
+      }
+    }
+  </script>
+</body>
+</html>

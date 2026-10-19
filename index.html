@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Veyzo Store</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body{
+      position: relative;
+      background-color: #0B132B;
+      overflow-x: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .main-header{
+      background: #0B132B;
+      width: 100%;
+      position: sticky;
+      top: 0;
+      height: 80px;
+      box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+    .head{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    .header-logo{
+      color: #fff;
+      font-size: 1.2rem;
+    }
+    .span1{
+      color: #D4AF37;
+    }
+    .span2{
+      background-color: #D4AF37;
+      border-radius: 4px;
+      padding: 2px 4px;
+      color: #0B132B;
+    }
+    .links{
+      display: flex;
+      margin-left: auto;
+      align-items: center;
+      gap: 15px;
+    }
+    .header-nav ul{
+      display: flex;
+      gap: 20px;
+    }
+    .header-nav ul li{
+      list-style: none;
+    }
+    .header-nav ul li a{
+      text-decoration: none;
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .header-nav ul li a:hover {
+      color: #D4AF37;
+    }
+    .menu-toggle{
+      color: #fff;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+    }
+    .header-cart{
+      margin-left: auto;
+      margin-right: 15px;
+    }
+    .header-cart button{
+      border: none;
+      background-color: transparent;
+      font-size: 1.1rem;
+    }
+    .header-cart button i{
+      color: white;
+    }
+    .header-btn button{
+      border: none;
+      background-color: #1E293B;
+      padding: 6px 12px;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.8rem; 
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-btn button i{
+      color: #fff;
+    }
+    .hero-section{
+      background-color: #0B132B;
+      min-height: calc(100vh - 80px);
+      width: 100%;
+      padding: 40px 20px;
+    }
+    .hero-text{
+      color: #fff;
+      text-align: center;
+      padding-top: 80px;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    .text-pragraph{
+      color: lightgray;
+      text-align: center;
+      max-width: 600px;
+      margin: 15px auto 0 auto;
+      line-height: 1.5;
+    }
+    .span3{
+      color: #D4AF37;
+    }
+
+    @media (max-width: 768px) {
+      .hero-text{
+        padding-top: 60px;
+        font-size: 2rem;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .hero-text{
+        padding-top: 120px;
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <div class="head">
+      <div class="header-logo">
+        <span>ve<span class="span1">y</span>zo<span class="span2">store</span></span>
+      </div>
+      
+      <div class="links">
+        <div class="header-cart" id="cart-container" style="display: none;">
+          <button type="button" title="Gaadhiga Iibsiga"><i class="fa-solid fa-cart-shopping"></i></button>
+        </div>
+        <div class="header-btn">
+          <button type="button" id="diwaan"><i class="fa-solid fa-user"></i> Gelitaan</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <section class="hero-section">
+    <p class="hero-text">Dukaameyso <span class="span3">adoo</span> Gurigaaga <span class="span3">Joogo</span></p>
+    <p class="text-pragraph">Veyzo store waxay kuu fududeynaysaa inaad adeegato adoo gurigaaga joogo, waxaana kugu keeneynaa gurigaaga, goobtaada shaqada iyo meel walba. Delivery waa 3$ kaliya</p>
+  </section>
+
+  <!-- Supabase Library-ga Rasmiga Ah -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- File-kaaga Konfiga oo Xiriirinaya Supabase -->
+  <script src="supabase-config.js"></script>
+
+  <script>
+    const cartContainer = document.getElementById('cart-container');
+    const loginBtn = document.getElementById('diwaan');
+
+    function checkAuthStatus() {
+      const isLoggedIn = localStorage.getItem('veyzo_logged_in');
+
+      if (isLoggedIn === 'true') {
+        cartContainer.style.display = 'block';
+        loginBtn.innerHTML = '<i class="fa-solid fa-user-slash"></i> Ka bax';
+      } else {
+        cartContainer.style.display = 'none';
+        loginBtn.innerHTML = '<i class="fa-solid fa-user"></i> Gelitaan';
+      }
+    }
+
+    loginBtn.addEventListener('click', (e) => {
+      const isLoggedIn = localStorage.getItem('veyzo_logged_in');
+
+      if (isLoggedIn === 'true') {
+        localStorage.removeItem('veyzo_logged_in');
+        alert('Waa la ka baxay (Logged out)');
+        checkAuthStatus();
+      } else {
+        window.location.href = "/register/gelid.html";
+      }
+    });
+
+    checkAuthStatus();
+  </script>
+</body>
+</html>

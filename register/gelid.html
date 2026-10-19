@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soo Gelitaan - Veyzo Store</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0B132B;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: transparent;
+            width: 100%;
+            max-width: 440px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            margin: 0 15px;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .span1 {
+            color: #D4AF37;
+        }
+
+        .sub-title {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-with-icon {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: #334155;
+            color: #fff;
+            padding: 12px 15px 12px 45px; 
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #D4AF37;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: #D4AF37;
+            color: #111827;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #c59b27;
+        }
+
+        .status-msg {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .footer-text a {
+            color: #D4AF37;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Qaybta Madaxa (Title Section) -->
+        <div class="header-title">
+            <h1><i class="fa-solid fa-store"></i> Welcome to ve<span class="span1">y</span>zo store</h1>
+            <p class="sub-title">Fadlan geli xogtaada si aad u soo gasho</p>
+        </div>
+
+        <!-- Foomka Soo Gelitaanka (Login Form) -->
+        <form id="login-form" onsubmit="handleLoginSubmit(event)">
+            
+            <!-- Status Notification Box -->
+            <div id="statusMessage" class="status-msg"></div>
+
+            <!-- Input Email -->
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input type="email" id="login-email" placeholder="E-mailkaaga" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Input Password -->
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="login-password" placeholder="Furo sireedka" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Botoonka Gudbinta -->
+            <div class="form-group">
+                <button type="submit" id="submit-btn" class="submit-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Soo Gal
+                </button>
+            </div>
+        </form>
+
+        <!-- Link-ga ku celinaya Diwaan-gelinta -->
+        <div class="footer-text">
+            Miyaanad lahayn akoon? <a href="/register/diwaan.html">Is diwaan geli</a>
+        </div>
+    </div>
+
+    <!-- Supabase Library-ga Rasmiga Ah -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- File-kaaga Konfiga oo Xiriirinaya Supabase -->
+    <script src="supabase-config.js"></script>
+
+    <script>
+        function getSupabase() {
+            if (window.supabaseClient && typeof window.supabaseClient.auth === 'object') {
+                return window.supabaseClient;
+            }
+            if (window.supabase && typeof window.supabase.auth === 'object') {
+                return window.supabase;
+            }
+            return null;
+        }
+
+        async function handleLoginSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const msgBox = document.getElementById('statusMessage');
+            const submitBtn = document.getElementById('submit-btn');
+
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+            msgBox.style.color = '#60a5fa';
+            msgBox.innerText = 'Fadlan sug, waa la xaqiijinayaa...';
+            submitBtn.disabled = true;
+
+            try {
+                const db = getSupabase();
+                
+                if (db && db.auth) {
+                    const { data, error } = await db.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) throw error;
+                }
+
+                // Keydi xogta fadhiga (session) ee localStorage
+                localStorage.setItem('veyzo_logged_in', 'true');
+                localStorage.setItem('veyzo_user_email', email);
+
+                msgBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                msgBox.style.color = '#34d399';
+                msgBox.innerText = '✅ Waa la soo galay akoonkaaga! Waa lagu celinayaa...';
+
+                setTimeout(() => {
+                    window.location.href = "../index.html"; // U gudub bogga ugu weyn
+                }, 1500);
+
+            } catch (err) {
+                msgBox.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                msgBox.style.color = '#f87171';
+                msgBox.innerText = '❌ Cillad: ' + (err.message || 'Email-ka ama furaha sireedka waa khalad.');
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

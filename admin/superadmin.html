@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#F4F5F7] font-sans text-gray-800 flex h-screen overflow-hidden">
+
+  <!-- ================= OVERLAY FOR MOBILE SIDEBAR ================= -->
+  <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden transition-opacity"></div>
+
+  <!-- ================= SIDEBAR NAVIGATION ================= -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#0B1426] text-gray-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out flex-shrink-0">
+    <div>
+      <!-- System Brand Logo -->
+      <div class="p-5 border-b border-gray-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37] to-amber-600 flex items-center justify-center text-slate-900 font-black text-xl shadow-lg">
+            SA
+          </div>
+          <div>
+            <h1 class="font-bold text-white text-base tracking-wide leading-none">Super Admin</h1>
+            <span class="text-[10px] text-[#D4AF37] font-semibold tracking-wider uppercase">Full System Control</span>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="p-3 space-y-1.5 text-sm font-medium">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-[#D4AF37] text-slate-900 font-bold shadow-md transition">
+          <i class="fa-solid fa-chart-pie w-5"></i>
+          <span>Dashboard Overview</span>
+        </button>
+
+        <button onclick="switchTab('escrow')" id="nav-escrow" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white text-gray-300 transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-vault w-5 text-amber-400"></i>
+            <span>Escrow & OTP Release</span>
+          </div>
+          <span id="escrowBadge" class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold">0 Pending</span>
+        </button>
+
+        <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white text-gray-300 transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-truck-fast w-5"></i>
+            <span>Live Orders & Delivery</span>
+          </div>
+          <span id="ordersBadge" class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-bold">0 Active</span>
+        </button>
+
+        <button onclick="switchTab('stores')" id="nav-stores" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white text-gray-300 transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-store w-5"></i>
+            <span>Dukaamada (Stores)</span>
+          </div>
+          <span id="storesBadge" class="bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded-full font-bold">0 Stores</span>
+        </button>
+
+        <button onclick="switchTab('users')" id="nav-users" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white text-gray-300 transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-users-gear w-5"></i>
+            <span>Isticmaalayaasha & Rewards</span>
+          </div>
+          <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold">Points Center</span>
+        </button>
+
+        <button onclick="switchTab('drivers')" id="nav-drivers" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white text-gray-300 transition">
+          <i class="fa-solid fa-motorcycle w-5"></i>
+          <span>Darawalada (Drivers)</span>
+        </button>
+
+        <button onclick="switchTab('staff')" id="nav-staff" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white text-gray-300 transition">
+          <i class="fa-solid fa-user-shield w-5"></i>
+          <span>Shaqaalaha & Payroll</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Admin Profile Footer & Logout -->
+    <div class="p-4 border-t border-gray-800 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center font-bold text-[#D4AF37] text-xs">
+          EX
+        </div>
+        <div class="text-xs">
+          <p class="font-bold text-white">Eng. Maxamed</p>
+          <p class="text-[10px] text-gray-400">admin@veyzostore.com</p>
+        </div>
+      </div>
+      <button onclick="logoutAdmin(event)" class="text-gray-400 hover:text-red-400 transition text-sm p-2 rounded-lg hover:bg-white/5" title="Ka bax System-ka">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    
+    <!-- TOP HEADER BAR -->
+    <header class="bg-white border-b px-6 py-3.5 flex items-center justify-between shadow-sm z-20">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="md:hidden text-gray-600 text-lg focus:outline-none p-1">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 id="pageTitle" class="text-lg font-bold text-gray-800">System Overview & Analytics</h2>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Export Report Button -->
+        <button onclick="exportToCSV()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 border">
+          <i class="fa-solid fa-download text-amber-600"></i> Export CSV
+        </button>
+
+        <!-- Live System Status Badge -->
+        <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> System Online
+        </span>
+      </div>
+    </header>
+
+    <!-- SCROLLABLE BODY CONTENT -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+
+      <!-- ================= TAB 1: DASHBOARD OVERVIEW ================= -->
+      <div id="tab-dashboard" class="tab-content space-y-6">
+        
+        <!-- KPI STATS CARDS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div onclick="showCardDetails('revenue')" class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-lg transition">
+            <div>
+              <span class="text-xs font-semibold text-gray-400 block">Wadarta Dakhliga Soo Galay</span>
+              <h3 id="kpiTotalRevenue" class="text-xl font-extrabold text-gray-900 mt-1">$0.00</h3>
+              <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 mt-1">
+                <i class="fa-solid fa-arrow-trend-up"></i> Dynamic Real-time
+              </span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-[#D4AF37] flex items-center justify-center text-xl font-bold">
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+          </div>
+
+          <div onclick="switchTab('escrow')" class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-lg transition border-l-4 border-l-amber-500">
+            <div>
+              <span class="text-xs font-semibold text-gray-400 block">Lacagta Escrow-ga Hada Hysa</span>
+              <h3 class="text-xl font-extrabold text-amber-600 mt-1" id="kpiEscrow">$0.00</h3>
+              <span class="text-[10px] text-amber-700 font-bold mt-1 block">Ku xiran OTP Delivery</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold">
+              <i class="fa-solid fa-vault"></i>
+            </div>
+          </div>
+
+          <div onclick="switchTab('orders')" class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-lg transition">
+            <div>
+              <span class="text-xs font-semibold text-gray-400 block">Dalabaadka Guud (Orders)</span>
+              <h3 id="kpiTotalOrders" class="text-xl font-extrabold text-gray-900 mt-1">0</h3>
+              <span id="kpiActiveOrdersSub" class="text-[10px] text-blue-600 font-bold mt-1 block">0 On-delivery hadda</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+              <i class="fa-solid fa-box-archive"></i>
+            </div>
+          </div>
+
+          <div onclick="switchTab('stores')" class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between cursor-pointer hover:shadow-lg transition">
+            <div>
+              <span class="text-xs font-semibold text-gray-400 block">Dukaamada (Stores)</span>
+              <h3 id="kpiTotalStores" class="text-xl font-extrabold text-gray-900 mt-1">0</h3>
+              <span id="kpiStoresSub" class="text-[10px] text-emerald-600 font-bold mt-1 block">All Systems Active</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+              <i class="fa-solid fa-store"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- FINANCIAL ANALYTICS & LOGS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-gray-800 text-sm">Natiijada Iibka & Dakhliga Soo Galay</h3>
+              <span class="text-xs text-gray-400 font-semibold">Real-Time Data</span>
+            </div>
+            <div class="h-64 relative">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+
+          <!-- SYSTEM LOGS & ALERTS WIDGET -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center border-b pb-2 mb-3">
+                <h3 class="font-bold text-gray-800 text-sm">Dhaqdhaqaaqa Nidaamka (System Logs)</h3>
+                <i class="fa-solid fa-bell text-amber-500 text-xs"></i>
+              </div>
+              <div id="systemLogs" class="space-y-3 text-xs overflow-y-auto max-h-56 pr-1">
+                <!-- Logs rendered dynamically -->
+              </div>
+            </div>
+            <button onclick="alert('Log-yada hore oo dhan halkan ayay ka muuqan doonaan marka dhaqdhaqaaq jiro.')" class="w-full mt-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs">
+              Eeg Dhammaan Activity Logs
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 2: ESCROW & OTP PAYMENT RELEASE SYSTEM ================= -->
+      <div id="tab-escrow" class="tab-content hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+          <div class="flex justify-between items-center flex-wrap gap-2 border-b pb-4">
+            <div>
+              <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
+                <i class="fa-solid fa-vault text-amber-500"></i> Platform Escrow & OTP Verification
+              </h3>
+              <p class="text-xs text-gray-500">Lacagta macaamilku bixiyay halkan ayay ku jiraan inta uu darawalku ama dukaanku ka keenayo OTP Code-ka xaqiijinta alaabta.</p>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-right">
+              <span class="text-[10px] text-amber-700 block font-bold">Wadarta Guud ee Escrow-ga Hada Hysa:</span>
+              <span id="escrowTotalText" class="text-lg font-black text-amber-800">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Escrow Orders Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-600">
+              <thead class="bg-gray-50 text-gray-700 font-bold border-b">
+                <tr>
+                  <th class="p-3">Order ID</th>
+                  <th class="p-3">Dukaanka Bixinta Leh</th>
+                  <th class="p-3">Macamilka</th>
+                  <th class="p-3">Lacagta Escrow-ga</th>
+                  <th class="p-3">Status-ka Lacagta</th>
+                  <th class="p-3 text-center">Xaqiijinta OTP / Fasaxidda</th>
+                </tr>
+              </thead>
+              <tbody id="escrowTableBody" class="divide-y">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: LIVE ORDERS ================= -->
+      <div id="tab-orders" class="tab-content hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="p-4 border-b flex justify-between items-center flex-wrap gap-2">
+            <h3 class="font-bold text-gray-800 text-sm">Raadraaca Buuxa ee Dalabaadka (Live Orders Control)</h3>
+            <div class="flex items-center gap-2">
+              <input type="text" id="orderSearch" onkeyup="renderOrdersTable()" placeholder="Raadi Order ama Macamil..." class="border text-xs rounded-xl px-3 py-1.5 outline-none w-48">
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-600">
+              <thead class="bg-gray-50 text-gray-700 font-bold border-b">
+                <tr>
+                  <th class="p-3">Order ID</th>
+                  <th class="p-3">Macamilka (Customer)</th>
+                  <th class="p-3">Dukaanka (Store)</th>
+                  <th class="p-3">Darawalka (Driver)</th>
+                  <th class="p-3">Wadarta ($)</th>
+                  <th class="p-3">Status-ka</th>
+                  <th class="p-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody" class="divide-y">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: STORES MANAGEMENT ================= -->
+      <div id="tab-stores" class="tab-content hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+          <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h3 class="font-bold text-gray-800 text-sm">Maamulka Dukaamada & Bixinta Lacagaha Bisha</h3>
+              <p class="text-xs text-gray-500">Ka maamul dukaamada bixiyay lacagta bisha, kuwo ka dhacday ama u xir/u fasax nidaamka.</p>
+            </div>
+            <button onclick="openModal('addStoreModal')" class="bg-[#0B1426] text-white text-xs font-bold px-3.5 py-2 rounded-xl hover:bg-slate-800 transition">
+              + Ku Dar Dukaan Cusub
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="storesContainer">
+            <!-- Dynamic Store Cards -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 5: USERS MANAGEMENT & LOYALTY POINTS REWARDS ================= -->
+      <div id="tab-users" class="tab-content hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <div>
+              <h3 class="font-bold text-gray-800 text-base">Maamulka Isticmaalayaasha & Loyalty Rewards (100+ Points)</h3>
+              <p class="text-xs text-gray-500">Halkan ka eeg dhibcaha macaamiisha. Sii alaab bilaash ah (Free Gift) macaamiisha gaarta 100 points!</p>
+            </div>
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-200">
+              <i class="fa-solid fa-gift text-amber-600"></i> Points Reward System Active
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-600">
+              <thead class="bg-gray-50 text-gray-700 font-bold border-b">
+                <tr>
+                  <th class="p-3">Magaca Macamilka</th>
+                  <th class="p-3">Telefoonka</th>
+                  <th class="p-3">Order-yada uu Bixiyay</th>
+                  <th class="p-3">Loyalty Points</th>
+                  <th class="p-3">Status-ka</th>
+                  <th class="p-3 text-center">Maamulka Reward-ka (Free Gift)</th>
+                </tr>
+              </thead>
+              <tbody id="usersRewardTableBody" class="divide-y">
+                <!-- Dynamic Loyalty Users -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 6: DRIVERS MANAGEMENT ================= -->
+      <div id="tab-drivers" class="tab-content hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+            <div>
+              <h3 class="font-bold text-gray-800 text-base">Maamulka Darawalada Delivery-ga</h3>
+              <p class="text-xs text-gray-500">Ku dar darawalo cusub, eeg xaaladooda gadiidka iyo hadii ay online yihiin.</p>
+            </div>
+            <button onclick="openModal('addDriverModal')" class="bg-[#0B1426] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md">
+              <i class="fa-solid fa-motorcycle text-[#D4AF37]"></i> Ku Dar Darawal Cusub
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-600">
+              <thead class="bg-gray-50 text-gray-700 font-bold border-b">
+                <tr>
+                  <th class="p-3">Magaca Darawalka</th>
+                  <th class="p-3">Telefoonka</th>
+                  <th class="p-3">Gudiga/Mootada</th>
+                  <th class="p-3">Xaalada Delivery-ga</th>
+                  <th class="p-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="driversTableBody" class="divide-y">
+                <!-- Dynamic Drivers Table -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 7: STAFF MANAGEMENT & PAYROLL ================= -->
+      <div id="tab-staff" class="tab-content hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+            <div>
+              <h3 class="font-bold text-gray-800 text-base">Maamulka Shaqaalaha & Payroll Auto-Calculator</h3>
+              <p class="text-xs text-gray-500">Mushaaraadka bilaha ee shaqaalaha iyo xisaabinta tooska ah ee budget-ka hawlgalka.</p>
+            </div>
+            <button onclick="openModal('addStaffModal')" class="bg-[#0B1426] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md">
+              <i class="fa-solid fa-user-plus text-[#D4AF37]"></i> Ku Dar Shaqaale Cusub
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-600">
+              <thead class="bg-gray-50 text-gray-700 font-bold border-b">
+                <tr>
+                  <th class="p-3">Magaca Shaqaalaha</th>
+                  <th class="p-3">Email-ka</th>
+                  <th class="p-3">Doorka & Hawsha (Role)</th>
+                  <th class="p-3">Mushaarka ($)</th>
+                  <th class="p-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody" class="divide-y">
+                <!-- Dynamic Staff Table -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Total Payroll Auto Box -->
+          <div class="mt-4 p-3.5 bg-slate-900 text-white rounded-xl flex justify-between items-center text-xs font-bold shadow-inner">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-amber-400"></i> Wadarta Mushaaraadka Bishan (Payroll Budget):
+            </span>
+            <span id="totalPayrollText" class="text-amber-400 text-base">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+  <div id="addStoreModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 border-t-4 border-[#D4AF37]">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-gray-800 text-sm">Ku Dar Dukaan Cusub</h3>
+        <button onclick="closeModal('addStoreModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleAddNewStore(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Magaca Dukaanka</label>
+          <input type="text" id="storeNameInput" required placeholder="Gali Magaca Dukaanka" class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Goobta (Location)</label>
+          <input type="text" id="storeLocInput" required placeholder="Mogadishu, KM4" class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Lacagta Bisha ($/mo)</label>
+          <input type="number" id="storeSubInput" required value="100" class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeModal('addStoreModal')" class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl font-bold">Ka Baaqsho</button>
+          <button type="submit" class="flex-1 bg-[#0B1426] text-white py-2.5 rounded-xl font-bold">Kaydi Dukaanka</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="addStaffModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 border-t-4 border-[#D4AF37]">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-gray-800 text-sm">Ku Dar Shaqaale Cusub</h3>
+        <button onclick="closeModal('addStaffModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleAddNewStaff(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Magaca Buuxa</label>
+          <input type="text" id="staffName" required placeholder="Axmed Cali" class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Email-ka</label>
+          <input type="email" id="staffEmail" required placeholder="axmed@system.so" class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Doorka</label>
+            <select id="staffRole" class="w-full border rounded-xl p-2.5 outline-none bg-gray-50">
+              <option value="Super Admin / CTO">Super Admin / CTO</option>
+              <option value="Customer Support Agent">Customer Support</option>
+              <option value="Escrow & Finance Manager">Finance Manager</option>
+              <option value="Operations & Store Onboarding">Operations / Onboarding</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Mushaarka ($)</label>
+            <input type="number" id="staffSalary" required placeholder="400" class="w-full border rounded-xl p-2.5 outline-none">
+          </div>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeModal('addStaffModal')" class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl font-bold">Ka Baaqsho</button>
+          <button type="submit" class="flex-1 bg-[#0B1426] text-white py-2.5 rounded-xl font-bold">Kaydi Shaqaalaha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="addDriverModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 border-t-4 border-[#D4AF37]">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-gray-800 text-sm">Ku Dar Darawal Delivery Cusub</h3>
+        <button onclick="closeModal('addDriverModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="handleAddNewDriver(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Magaca Buuxa</label>
+          <input type="text" id="driverName" required placeholder="Faarax Nuur" class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Nambarka Telefoonka</label>
+          <input type="text" id="driverPhone" required placeholder="+252 61..." class="w-full border rounded-xl p-2.5 outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Gaadhiga / Mootada</label>
+          <select id="driverVehicle" class="w-full border rounded-xl p-2.5 outline-none bg-gray-50">
+            <option value="Mooto (TVS)">Mooto (TVS)</option>
+            <option value="Gaadhi (Car)">Gaadhi (Car)</option>
+          </select>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="closeModal('addDriverModal')" class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl font-bold">Ka Baaqsho</button>
+          <button type="submit" class="flex-1 bg-[#0B1426] text-white py-2.5 rounded-xl font-bold">Kaydi Darawalka</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="actionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4 border-t-4 border-[#D4AF37]">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 id="modalTitle" class="font-bold text-gray-800 text-sm">Detail Information</h3>
+        <button onclick="closeModal('actionModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="modalBody" class="text-xs text-gray-600 space-y-2"></div>
+      <button onclick="closeModal('actionModal')" class="w-full bg-[#0B1426] text-white py-2.5 rounded-xl text-xs font-bold">Xir Daaqadda</button>
+    </div>
+  </div>
+
+  <!-- ================= SUPABASE LIBRARIES ================= -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+  <!-- ================= JAVASCRIPT STATE ENGINE & SUPABASE SYNC ================= -->
+  <script>
+    const appState = {
+      totalRevenue: 0.00,
+      orders: [],
+      stores: [],
+      users: [],
+      drivers: [],
+      staff: [],
+      logs: []
+    };
+
+    let revenueChart = null;
+
+    function getSupabase() {
+      // Hubi dhammaan qaababka uu supabase-config.js ugu talagalay inuu client-ka soo saaro
+      if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+        return window.supabaseClient;
+      }
+      if (window.supabase && typeof window.supabase.from === 'function') {
+        return window.supabase;
+      }
+      if (typeof supabase !== 'undefined' && supabase && typeof supabase.from === 'function') {
+        return supabase;
+      }
+      return null;
+    }
+
+    function logoutAdmin(event) {
+      if (event) event.preventDefault();
+      if (confirm('Ma hubtaa inaad ka baxayso dashboard-ka?')) {
+        window.location.href = '/admin-login/admin-login.html';
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-[#D4AF37]', 'text-slate-900', 'font-bold', 'shadow-md');
+        btn.classList.add('hover:bg-white/5', 'text-gray-300');
+      });
+
+      const targetTab = document.getElementById('tab-' + tabId);
+      if(targetTab) targetTab.classList.remove('hidden');
+
+      const activeBtn = document.getElementById('nav-' + tabId);
+      if(activeBtn) {
+        activeBtn.classList.add('bg-[#D4AF37]', 'text-slate-900', 'font-bold', 'shadow-md');
+        activeBtn.classList.remove('hover:bg-white/5', 'text-gray-300');
+      }
+
+      const titles = {
+        'dashboard': 'System Overview & Analytics',
+        'escrow': 'Platform Escrow & Payment Release',
+        'orders': 'Live Orders & Delivery Control',
+        'stores': 'Stores & Subscription Management',
+        'users': 'Registered Customers & Loyalty Rewards Center',
+        'drivers': 'Delivery Drivers Management',
+        'staff': 'Staff Management & Payroll'
+      };
+      document.getElementById('pageTitle').innerText = titles[tabId] || 'Dashboard';
+
+      if (window.innerWidth < 768) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('-translate-x-full')) toggleSidebar();
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // Fetch data safely from Supabase DB with fallback simulation
+    async function loadDataFromSupabase() {
+      const db = getSupabase();
+      
+      if (db) {
+        try {
+          const { data: ordersData, error: ordErr } = await db.from('orders').select('*');
+          if (!ordErr && ordersData) {
+            appState.orders = ordersData.map(o => ({
+              id: String(o.id),
+              customer: o.customer_name || 'Macmiil',
+              phone: o.customer_phone || '',
+              store: o.store_name || 'Veyzo Store',
+              driver: o.driver_name || 'Darawal',
+              amount: parseFloat(o.price || o.amount || 0),
+              status: o.order_status || 'Pending',
+              escrow: o.order_status === 'Pending',
+              released: o.order_status === 'Completed',
+              otp: String(o.otp || '1234')
+            }));
+          }
+
+          const { data: storesData, error: stErr } = await db.from('stores').select('*');
+          if (!stErr && storesData) {
+            appState.stores = storesData.map(s => ({
+              id: s.id,
+              name: s.store_name || 'Dukaan',
+              code: (s.store_name || 'ST').substring(0,2).toUpperCase(),
+              location: s.location || 'Mogadishu',
+              monthlySub: 100,
+              isPaid: true,
+              sales: 0,
+              isBlocked: false
+            }));
+          }
+        } catch (err) {
+          console.warn("Supabase connection warning, running local state.", err);
+        }
+      }
+
+      updateKPIs();
+      renderEscrowTable();
+      renderOrdersTable();
+      renderStores();
+      renderUsersRewardTable();
+      renderDriversTable();
+      renderStaffTable();
+      renderLogs();
+    }
+
+    function updateKPIs() {
+      const pendingEscrows = appState.orders.filter(o => o.escrow && !o.released);
+      const escrowTotal = pendingEscrows.reduce((sum, o) => sum + o.amount, 0);
+
+      const calculatedRevenue = appState.orders
+        .filter(o => o.status === 'Completed' || o.status === 'Delivered')
+        .reduce((sum, o) => sum + o.amount, 0);
+
+      appState.totalRevenue = calculatedRevenue;
+
+      document.getElementById('kpiTotalRevenue').innerText = '$' + appState.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 });
+      document.getElementById('kpiEscrow').innerText = '$' + escrowTotal.toFixed(2);
+      document.getElementById('escrowTotalText').innerText = '$' + escrowTotal.toFixed(2);
+      document.getElementById('escrowBadge').innerText = `${pendingEscrows.length} Pending`;
+
+      const activeOrders = appState.orders.filter(o => o.status === 'Pending' || o.status === 'On Delivery');
+      document.getElementById('kpiTotalOrders').innerText = appState.orders.length;
+      document.getElementById('kpiActiveOrdersSub').innerText = `${activeOrders.length} On-delivery hadda`;
+      document.getElementById('ordersBadge').innerText = `${activeOrders.length} Active`;
+
+      document.getElementById('kpiTotalStores').innerText = appState.stores.length;
+      document.getElementById('storesBadge').innerText = `${appState.stores.length} Stores`;
+
+      updateChart();
+    }
+
+    function renderEscrowTable() {
+      const tbody = document.getElementById('escrowTableBody');
+      tbody.innerHTML = '';
+      const pendingEscrows = appState.orders.filter(o => o.escrow);
+
+      if (pendingEscrows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Ma jiraan lacag escrow ah oo la sugayo.</td></tr>`;
+        return;
+      }
+
+      pendingEscrows.forEach(ord => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50/80';
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-blue-600">#${ord.id}</td>
+          <td class="p-3 font-bold text-gray-800">${ord.store}</td>
+          <td class="p-3">${ord.customer}</td>
+          <td class="p-3 font-extrabold text-amber-600">$${ord.amount.toFixed(2)}</td>
+          <td class="p-3">
+            <span class="status-tag ${ord.released ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} font-bold px-2 py-0.5 rounded-full text-[10px]">
+              ${ord.released ? 'Released to Merchant' : 'Held in Escrow'}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            ${ord.released ? `
+              <span class="text-emerald-600 font-bold"><i class="fa-solid fa-check-double"></i> Paid Out</span>
+            ` : `
+              <div class="flex items-center justify-center gap-2">
+                <input type="text" id="otp-input-${ord.id}" placeholder="Gali OTP (e.g ${ord.otp})" class="w-28 border rounded-lg p-1.5 text-center font-bold text-xs outline-none focus:border-amber-500">
+                <button onclick="releaseEscrowPayment('${ord.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg transition text-[11px]">
+                  Fasax Lacagta
+                </button>
+              </div>
+            `}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      const query = (document.getElementById('orderSearch')?.value || '').toLowerCase();
+      tbody.innerHTML = '';
+
+      if (appState.orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">Waqti xaadirkan ma jiraan wax orders ah.</td></tr>`;
+        return;
+      }
+
+      const filtered = appState.orders.filter(o => 
+        o.id.toLowerCase().includes(query) || 
+        o.customer.toLowerCase().includes(query) || 
+        o.store.toLowerCase().includes(query)
+      );
+
+      filtered.forEach(ord => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50/80';
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-blue-600">#${ord.id}</td>
+          <td class="p-3">
+            <p class="font-bold text-gray-800">${ord.customer}</p>
+            <p class="text-[10px] text-gray-400">${ord.phone}</p>
+          </td>
+          <td class="p-3 font-semibold text-gray-700">${ord.store}</td>
+          <td class="p-3">
+            <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px]">${ord.driver}</span>
+          </td>
+          <td class="p-3 font-bold text-gray-900">$${ord.amount.toFixed(2)}</td>
+          <td class="p-3">
+            <span class="${ord.status === 'Completed' || ord.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} text-[10px] font-bold px-2.5 py-1 rounded-full">
+              ${ord.status}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="viewOrderDetails('${ord.id}')" class="text-blue-600 hover:text-blue-800 font-bold">Detail</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderStores() {
+      const container = document.getElementById('storesContainer');
+      container.innerHTML = '';
+
+      if (appState.stores.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-6 text-center text-gray-400 bg-gray-50 rounded-2xl border border-dashed">Waqti xaadirkan ma jiraan dukaamo ku jira system-ka. Guji "+ Ku Dar Dukaan Cusub" si aad u bilawdo.</div>`;
+        return;
+      }
+
+      appState.stores.forEach(st => {
+        const card = document.createElement('div');
+        card.className = 'border rounded-2xl p-4 bg-gray-50/50 space-y-3 store-card';
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-xl bg-amber-500 text-white font-bold flex items-center justify-center text-sm">${st.code}</div>
+              <div>
+                <h4 class="font-bold text-gray-800 text-sm">${st.name}</h4>
+                <p class="text-[11px] text-gray-500">${st.location}</p>
+              </div>
+            </div>
+            <span class="status-badge ${st.isBlocked ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'} text-[10px] font-bold px-2 py-0.5 rounded-full">
+              ${st.isBlocked ? 'Xiran (Blocked)' : 'Active'}
+            </span>
+          </div>
+          <div class="text-xs text-gray-600 space-y-1.5 border-t border-b py-2.5">
+            <div class="flex justify-between">
+              <span>Lacagta Bisha ($${st.monthlySub}/mo):</span>
+              <span class="font-bold ${st.isPaid ? 'text-emerald-600' : 'text-red-500'}">
+                <i class="fa-solid ${st.isPaid ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> ${st.isPaid ? 'Bixiyay' : 'Ka Dhacday'}
+              </span>
+            </div>
+          </div>
+          <button onclick="toggleStoreStatus(${st.id})" class="w-full ${st.isBlocked ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'} text-xs font-bold py-1.5 rounded-xl transition">
+            ${st.isBlocked ? 'Fasax Dukaanka' : 'Xir Dukaanka (Block)'}
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderUsersRewardTable() {
+      document.getElementById('usersRewardTableBody').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Ma jiraan isticmaalayaal hadda diiwaangashan.</td></tr>`;
+    }
+
+    function renderDriversTable() {
+      document.getElementById('driversTableBody').innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Ma jiraan darawalo diiwaangashan.</td></tr>`;
+    }
+
+    function renderStaffTable() {
+      document.getElementById('staffTableBody').innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Ma jiraan shaqaale diiwaangashan.</td></tr>`;
+      document.getElementById('totalPayrollText').innerText = '$0.00';
+    }
+
+    function renderLogs() {
+      document.getElementById('systemLogs').innerHTML = `<p class="text-gray-400 text-center py-4">Wali ma jiraan dhaqdhaqaaqyo cusub.</p>`;
+    }
+
+    async function releaseEscrowPayment(ordId) {
+      const ord = appState.orders.find(o => o.id === ordId);
+      if (!ord) return;
+
+      const enteredOtp = document.getElementById('otp-input-' + ordId).value.trim();
+      if (enteredOtp !== ord.otp) {
+        alert('❌ OTP Code-ka aad galisay waa khaldanyahay! Fadlan xaqiiji code-ka macaamilka.');
+        return;
+      }
+
+      ord.released = true;
+      ord.status = 'Completed';
+
+      const db = getSupabase();
+      if (db) {
+        try {
+          await db.from('orders').update({ order_status: 'Completed' }).eq('id', ordId);
+        } catch (e) {}
+      }
+
+      updateKPIs();
+      renderEscrowTable();
+      renderOrdersTable();
+      alert(`✅ OTP-ga waa la xaqiijiyay! Lacagtii $${ord.amount.toFixed(2)} waxaa loo fasaxay dukaanka.`);
+    }
+
+    function toggleStoreStatus(storeId) {
+      const store = appState.stores.find(s => s.id === storeId);
+      if (store) {
+        store.isBlocked = !store.isBlocked;
+        renderStores();
+      }
+    }
+
+    async function handleAddNewStore(e) {
+      e.preventDefault();
+      const name = document.getElementById('storeNameInput').value;
+      const loc = document.getElementById('storeLocInput').value;
+
+      const db = getSupabase();
+      if (db) {
+        try {
+          await db.from('stores').insert([{ store_name: name, location: loc }]);
+        } catch (err) {}
+      }
+
+      loadDataFromSupabase();
+      closeModal('addStoreModal');
+      e.target.reset();
+      alert('✅ Dukaanka cusub si guul leh ayaa loo kaydiyay!');
+    }
+
+    function handleAddNewStaff(e) {
+      e.preventDefault();
+      closeModal('addStaffModal');
+      e.target.reset();
+    }
+
+    function handleAddNewDriver(e) {
+      e.preventDefault();
+      closeModal('addDriverModal');
+      e.target.reset();
+    }
+
+    function exportToCSV() {
+      if (appState.orders.length === 0) {
+        alert('Ma jiraan wax orders ah oo CSV ahaan loo soo saari karo.');
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,Order ID,Customer,Store,Amount,Status\n";
+      appState.orders.forEach(o => {
+        csvContent += `${o.id},${o.customer},${o.store},${o.amount},${o.status}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `System_Report.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function showCardDetails(type) {
+      document.getElementById('modalTitle').innerText = 'System Information';
+      document.getElementById('modalBody').innerHTML = `<p class="p-2 bg-gray-50 rounded-xl">Xogta ${type} waa mid toos ah.</p>`;
+      openModal('actionModal');
+    }
+
+    function viewOrderDetails(id) {
+      const ord = appState.orders.find(o => o.id === id);
+      if(!ord) return;
+      document.getElementById('modalTitle').innerText = 'Faahfaahinta Order-ka #' + id;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="space-y-1.5">
+          <p><strong>Macamilka:</strong> ${ord.customer}</p>
+          <p><strong>Dukaanka:</strong> ${ord.store}</p>
+          <p><strong>Wadarta Lacagta:</strong> $${ord.amount.toFixed(2)}</p>
+          <p class="p-2 bg-amber-50 rounded-lg text-amber-800">Order-kan waxaa ku dhex jira lacagta Escrow-ga ah.</p>
+        </div>
+      `;
+      openModal('actionModal');
+    }
+
+    function updateChart() {
+      if (!revenueChart) return;
+      revenueChart.data.datasets[0].data = [0, 0, 0, 0, 0, 0, 0, 0, 0, appState.totalRevenue];
+      revenueChart.update();
+    }
+
+    window.onload = function() {
+      loadDataFromSupabase();
+
+      const chartCanvas = document.getElementById('revenueChart');
+      if (chartCanvas) {
+        const ctx = chartCanvas.getContext('2d');
+        revenueChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            datasets: [{
+              label: 'Dakhliga Guud ($)',
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              borderColor: '#D4AF37',
+              backgroundColor: 'rgba(212, 175, 55, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+    };
+  </script>
+</body>
+</html>
